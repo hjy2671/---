@@ -153,7 +153,7 @@ public class UserController {
         if(!passwordEncoder.matches(password, userDto.getPassword())){
             throw new BadRequestException("密码错误");
         }
-        //verificationCodeService.validated(CodeEnum.PHONE_RESET_PHONE_CODE.getKey() + user.getPhone(), code);
+        verificationCodeService.validated(CodeEnum.PHONE_RESET_PHONE_CODE.getKey() + user.getPhone(), code);
         userService.updatePhone(userDto.getUsername(), user.getPhone());
         return new ResponseEntity<>(HttpStatus.OK);
     }

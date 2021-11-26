@@ -59,6 +59,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public JwtUserDto loadUserByUsername(String username) {
         JwtUserDto jwtUserDto = null;
         Future<JwtUserDto> future = USER_DTO_CACHE.get(username);
+
         if (!loginProperties.isCacheEnable()) {
             UserDto user;
             try {

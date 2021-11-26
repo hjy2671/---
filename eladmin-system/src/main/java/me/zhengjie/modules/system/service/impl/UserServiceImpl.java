@@ -146,6 +146,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updatePhone(String username, String phone) {
         userRepository.updatePhone(username, phone);
+        delCaches(findByName(username).getId(), username);
     }
 
     @Override
