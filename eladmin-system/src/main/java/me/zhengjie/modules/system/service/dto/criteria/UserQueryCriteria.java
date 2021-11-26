@@ -13,19 +13,32 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package me.zhengjie.modules.system.service.mapstruct;
+package me.zhengjie.modules.system.service.dto.criteria;
 
-import me.zhengjie.base.BaseMapper;
-import me.zhengjie.modules.system.domain.Dict;
-import me.zhengjie.modules.system.service.dto.DictDto;
-import org.mapstruct.Mapper;
-import org.mapstruct.ReportingPolicy;
+import lombok.Data;
+import me.zhengjie.annotation.Query;
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
-* @author Zheng Jie
-* @date 2019-04-10
-*/
-@Mapper(componentModel = "spring",unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface DictMapper extends BaseMapper<DictDto, Dict> {
+ * @author Zheng Jie
+ * @date 2018-11-23
+ */
+@Data
+public class UserQueryCriteria implements Serializable {
 
+    @Query
+    private Long id;
+
+    @Query(blurry = "username,nickName")
+    private String blurry;
+
+    @Query
+    private Boolean enabled;
+
+    @Query(type = Query.Type.BETWEEN)
+    private List<Timestamp> createTime;
 }

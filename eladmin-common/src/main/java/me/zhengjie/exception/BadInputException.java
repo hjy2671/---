@@ -13,27 +13,29 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package me.zhengjie.modules.system.service.dto;
+package me.zhengjie.exception;
 
 import lombok.Getter;
-import lombok.Setter;
-import me.zhengjie.base.BaseDTO;
-import java.io.Serializable;
-import java.util.List;
+import org.springframework.http.HttpStatus;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 /**
-* @author Zheng Jie
-* @date 2019-04-10
-*/
+ * @author hujinyun
+ * @date 2021-11-26
+ * 统一异常处理
+ */
 @Getter
-@Setter
-public class DictDto extends BaseDTO implements Serializable {
+public class BadInputException extends RuntimeException{
 
-    private Long id;
+    private Integer status = BAD_REQUEST.value();
 
-    private List<DictDetailDto> dictDetails;
+    public BadInputException(String msg){
+        super(msg);
+    }
 
-    private String name;
-
-    private String description;
+    public BadInputException(HttpStatus status, String msg){
+        super(msg);
+        this.status = status.value();
+    }
 }

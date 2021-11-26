@@ -16,6 +16,7 @@
 package me.zhengjie.exception.handler;
 
 import lombok.extern.slf4j.Slf4j;
+import me.zhengjie.exception.BadInputException;
 import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.exception.EntityExistException;
 import me.zhengjie.exception.EntityNotFoundException;
@@ -67,6 +68,16 @@ public class GlobalExceptionHandler {
         log.error(ThrowableUtil.getStackTrace(e));
         return buildResponseEntity(ApiError.error(e.getStatus(),e.getMessage()));
 	}
+
+    /**
+     * 处理自定义异常
+     */
+    @ExceptionHandler(value = BadInputException.class)
+    public ResponseEntity<ApiError> badInputException(BadInputException e) {
+        // 打印堆栈信息
+        log.error(ThrowableUtil.getStackTrace(e));
+        return buildResponseEntity(ApiError.error(e.getStatus(),e.getMessage()));
+    }
 
     /**
      * 处理 EntityExist

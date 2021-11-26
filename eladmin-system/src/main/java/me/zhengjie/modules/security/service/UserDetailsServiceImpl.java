@@ -20,7 +20,6 @@ import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.exception.EntityNotFoundException;
 import me.zhengjie.modules.security.config.bean.LoginProperties;
 import me.zhengjie.modules.security.service.dto.JwtUserDto;
-import me.zhengjie.modules.system.service.DataService;
 import me.zhengjie.modules.system.service.RoleService;
 import me.zhengjie.modules.system.service.UserService;
 import me.zhengjie.modules.system.service.dto.UserDto;
@@ -28,7 +27,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -42,7 +40,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserService userService;
     private final RoleService roleService;
-    private final DataService dataService;
     private final LoginProperties loginProperties;
 
     public void setEnableCache(boolean enableCache) {
@@ -78,7 +75,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 }
                 jwtUserDto = new JwtUserDto(
                         user,
-                        dataService.getDeptIds(user),
                         roleService.mapToGrantedAuthorities(user)
                 );
             }
@@ -106,11 +102,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             }catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e.getMessage());
             }
-            // 检查dataScope是否修改
-            List<Long> dataScopes = jwtUserDto.getDataScopes();
-            dataScopes.clear();
-            dataScopes.addAll(dataService.getDeptIds(jwtUserDto.getUser()));
-
         }
         return jwtUserDto;
 
@@ -132,7 +123,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             }
             return new JwtUserDto(
                     user,
-                    dataService.getDeptIds(user),
                     roleService.mapToGrantedAuthorities(user)
             );
         }

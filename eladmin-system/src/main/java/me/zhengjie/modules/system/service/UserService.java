@@ -17,7 +17,7 @@ package me.zhengjie.modules.system.service;
 
 import me.zhengjie.modules.system.domain.User;
 import me.zhengjie.modules.system.service.dto.UserDto;
-import me.zhengjie.modules.system.service.dto.UserQueryCriteria;
+import me.zhengjie.modules.system.service.dto.criteria.UserQueryCriteria;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
@@ -79,13 +79,6 @@ public interface UserService {
     Map<String, String> updateAvatar(MultipartFile file);
 
     /**
-     * 修改邮箱
-     * @param username 用户名
-     * @param email 邮箱
-     */
-    void updateEmail(String username, String email);
-
-    /**
      * 查询全部
      * @param criteria 条件
      * @param pageable 分页参数
@@ -113,4 +106,11 @@ public interface UserService {
      * @param resources /
      */
     void updateCenter(User resources);
+
+    /**
+     * 用户修改手机号
+     * @param username 用户名
+     * @param phone 手机号
+     */
+    void updatePhone(String username, String phone);
 }

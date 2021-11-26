@@ -13,9 +13,7 @@
     <name>工具模块</name>
 
     <properties>
-        <mail.version>1.4.7</mail.version>
-        <qiniu.version>[7.2.0, 7.2.99]</qiniu.version>
-        <alipay.version>4.9.153.ALL</alipay.version>
+        <sms.version>2.0.7</sms.version>
     </properties>
 
     <dependencies>
@@ -26,25 +24,10 @@
             <version>2.6</version>
         </dependency>
 
-        <!--邮件依赖-->
         <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
-            <version>${mail.version}</version>
-        </dependency>
-
-        <!--七牛云存储-->
-        <dependency>
-            <groupId>com.qiniu</groupId>
-            <artifactId>qiniu-java-sdk</artifactId>
-            <version>${qiniu.version}</version>
-        </dependency>
-
-        <!--支付宝依赖-->
-        <dependency>
-            <groupId>com.alipay.sdk</groupId>
-            <artifactId>alipay-sdk-java</artifactId>
-            <version>${alipay.version}</version>
+            <groupId>com.aliyun</groupId>
+            <artifactId>dysmsapi20170525</artifactId>
+            <version>${sms.version}</version>
         </dependency>
     </dependencies>
 </project>

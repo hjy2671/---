@@ -15,17 +15,11 @@
  */
 package me.zhengjie.modules.quartz.utils;
 
-import cn.hutool.extra.template.Template;
-import cn.hutool.extra.template.TemplateConfig;
-import cn.hutool.extra.template.TemplateEngine;
-import cn.hutool.extra.template.TemplateUtil;
 import me.zhengjie.config.thread.ThreadPoolExecutorUtil;
-import me.zhengjie.domain.vo.EmailVo;
 import me.zhengjie.modules.quartz.domain.QuartzJob;
 import me.zhengjie.modules.quartz.domain.QuartzLog;
 import me.zhengjie.modules.quartz.repository.QuartzLogRepository;
 import me.zhengjie.modules.quartz.service.QuartzJobService;
-import me.zhengjie.service.EmailService;
 import me.zhengjie.utils.RedisUtils;
 import me.zhengjie.utils.SpringContextHolder;
 import me.zhengjie.utils.StringUtils;
@@ -33,7 +27,6 @@ import me.zhengjie.utils.ThrowableUtil;
 import org.quartz.JobExecutionContext;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.quartz.QuartzJobBean;
-import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -104,30 +97,10 @@ public class ExecutionJob extends QuartzJobBean {
                 //更新状态
                 quartzJobService.updateIsPause(quartzJob);
             }
-            if(quartzJob.getEmail() != null){
-                EmailService emailService = SpringContextHolder.getBean(EmailService.class);
-                // 邮箱报警
-                if(StringUtils.isNoneBlank(quartzJob.getEmail())){
-                    EmailVo emailVo = taskAlarm(quartzJob, ThrowableUtil.getStackTrace(e));
-                    emailService.send(emailVo, emailService.find());
-                }
-            }
+
         } finally {
             quartzLogRepository.save(log);
         }
     }
 
-    private EmailVo taskAlarm(QuartzJob quartzJob, String msg) {
-        EmailVo emailVo = new EmailVo();
-        emailVo.setSubject("定时任务【"+ quartzJob.getJobName() +"】执行失败，请尽快处理！");
-        Map<String, Object> data = new HashMap<>(16);
-        data.put("task", quartzJob);
-        data.put("msg", msg);
-        TemplateEngine engine = TemplateUtil.createEngine(new TemplateConfig("template", TemplateConfig.ResourceMode.CLASSPATH));
-        Template template = engine.getTemplate("email/taskAlarm.ftl");
-        emailVo.setContent(template.render(data));
-        List<String> emails = Arrays.asList(quartzJob.getEmail().split("[,，]"));
-        emailVo.setTos(emails);
-        return emailVo;
-    }
 }

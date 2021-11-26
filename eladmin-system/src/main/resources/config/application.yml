@@ -25,9 +25,9 @@ spring:
   redis:
     #数据库索引
     database: ${REDIS_DB:0}
-    host: ${REDIS_HOST:127.0.0.1}
+    host: ${REDIS_HOST:11.64.3.27}
     port: ${REDIS_PORT:6379}
-    password: ${REDIS_PWD:}
+    password: ${REDIS_PWD:dict#20210825++}
     #连接超时时间
     timeout: 5000
 
@@ -42,12 +42,7 @@ task:
     # 队列容量
     queue-capacity: 50
 
-#七牛云
-qiniu:
-  # 文件大小 /M
-  max-size: 15
-
-#邮箱验证码有效时间/秒
+#验证过期时间
 code:
   expiration: 300
 

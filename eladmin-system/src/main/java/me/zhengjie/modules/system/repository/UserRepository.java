@@ -20,6 +20,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -36,13 +38,6 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
      * @return /
      */
     User findByUsername(String username);
-
-    /**
-     * 根据邮箱查询
-     * @param email 邮箱
-     * @return /
-     */
-    User findByEmail(String email);
 
     /**
      * 根据手机号查询
@@ -62,13 +57,14 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     void updatePass(String username, String pass, Date lastPasswordResetTime);
 
     /**
-     * 修改邮箱
+     * 修改手机号
      * @param username 用户名
-     * @param email 邮箱
+     * @param phone 手机号
      */
+    @Transactional
     @Modifying
-    @Query(value = "update sys_user set email = ?2 where username = ?1",nativeQuery = true)
-    void updateEmail(String username, String email);
+    @Query(value = "update sys_user set phone = ?2 where username = ?1",nativeQuery = true)
+    void updatePhone(String username, String phone);
 
     /**
      * 根据角色查询用户
@@ -78,15 +74,6 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     @Query(value = "SELECT u.* FROM sys_user u, sys_users_roles r WHERE" +
             " u.user_id = r.user_id AND r.role_id = ?1", nativeQuery = true)
     List<User> findByRoleId(Long roleId);
-
-    /**
-     * 根据角色中的部门查询
-     * @param deptId /
-     * @return /
-     */
-    @Query(value = "SELECT u.* FROM sys_user u, sys_users_roles r, sys_roles_depts d WHERE " +
-            "u.user_id = r.user_id AND r.role_id = d.role_id AND d.dept_id = ?1 group by u.user_id", nativeQuery = true)
-    List<User> findByRoleDeptId(Long deptId);
 
     /**
      * 根据菜单查询
@@ -102,22 +89,6 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
      * @param ids /
      */
     void deleteAllByIdIn(Set<Long> ids);
-
-    /**
-     * 根据岗位查询
-     * @param ids /
-     * @return /
-     */
-    @Query(value = "SELECT count(1) FROM sys_user u, sys_users_jobs j WHERE u.user_id = j.user_id AND j.job_id IN ?1", nativeQuery = true)
-    int countByJobs(Set<Long> ids);
-
-    /**
-     * 根据部门查询
-     * @param deptIds /
-     * @return /
-     */
-    @Query(value = "SELECT count(1) FROM sys_user u WHERE u.dept_id IN ?1", nativeQuery = true)
-    int countByDepts(Set<Long> deptIds);
 
     /**
      * 根据角色查询

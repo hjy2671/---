@@ -24,7 +24,7 @@ import me.zhengjie.modules.system.domain.Role;
 import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.modules.system.service.RoleService;
 import me.zhengjie.modules.system.service.dto.RoleDto;
-import me.zhengjie.modules.system.service.dto.RoleQueryCriteria;
+import me.zhengjie.modules.system.service.dto.criteria.RoleQueryCriteria;
 import me.zhengjie.modules.system.service.dto.RoleSmallDto;
 import me.zhengjie.utils.SecurityUtils;
 import org.springframework.data.domain.Pageable;

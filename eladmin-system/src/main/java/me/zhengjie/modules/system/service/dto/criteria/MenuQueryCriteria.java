@@ -13,22 +13,29 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package me.zhengjie.modules.system.service;
+package me.zhengjie.modules.system.service.dto.criteria;
 
-import me.zhengjie.modules.system.service.dto.UserDto;
+import lombok.Data;
+import me.zhengjie.annotation.Query;
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
- * 数据权限服务类
  * @author Zheng Jie
- * @date 2020-05-07
+ * 公共查询类
  */
-public interface DataService {
+@Data
+public class MenuQueryCriteria {
 
-    /**
-     * 获取数据权限
-     * @param user /
-     * @return /
-     */
-    List<Long> getDeptIds(UserDto user);
+    @Query(blurry = "title,component,permission")
+    private String blurry;
+
+    @Query(type = Query.Type.BETWEEN)
+    private List<Timestamp> createTime;
+
+    @Query(type = Query.Type.IS_NULL, propName = "pid")
+    private Boolean pidIsNull;
+
+    @Query
+    private Long pid;
 }

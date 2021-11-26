@@ -18,8 +18,6 @@ package me.zhengjie.modules.system.rest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import me.zhengjie.domain.vo.EmailVo;
-import me.zhengjie.service.EmailService;
 import me.zhengjie.modules.system.service.VerifyService;
 import me.zhengjie.utils.enums.CodeBiEnum;
 import me.zhengjie.utils.enums.CodeEnum;
@@ -39,34 +37,31 @@ import java.util.Objects;
 public class VerifyController {
 
     private final VerifyService verificationCodeService;
-    private final EmailService emailService;
 
-    @PostMapping(value = "/resetEmail")
-    @ApiOperation("重置邮箱，发送验证码")
-    public ResponseEntity<Object> resetEmail(@RequestParam String email){
-        EmailVo emailVo = verificationCodeService.sendEmail(email, CodeEnum.EMAIL_RESET_EMAIL_CODE.getKey());
-        emailService.send(emailVo,emailService.find());
+    @PostMapping(value = "/resetPhone")
+    @ApiOperation("重置手机号，发送验证码")
+    public ResponseEntity<Object> resetEmail(@RequestParam String phone){
+        verificationCodeService.sendSms(phone, CodeEnum.PHONE_RESET_PHONE_CODE.getKey());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping(value = "/email/resetPass")
+    @PostMapping(value = "/phone/resetPass")
     @ApiOperation("重置密码，发送验证码")
-    public ResponseEntity<Object> resetPass(@RequestParam String email){
-        EmailVo emailVo = verificationCodeService.sendEmail(email, CodeEnum.EMAIL_RESET_PWD_CODE.getKey());
-        emailService.send(emailVo,emailService.find());
+    public ResponseEntity<Object> resetPass(@RequestParam String phone){
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping(value = "/validated")
     @ApiOperation("验证码验证")
-    public ResponseEntity<Object> validated(@RequestParam String email, @RequestParam String code, @RequestParam Integer codeBi){
+    public ResponseEntity<Object> validated(@RequestParam String phone, @RequestParam String code, @RequestParam Integer codeBi){
         CodeBiEnum biEnum = CodeBiEnum.find(codeBi);
         switch (Objects.requireNonNull(biEnum)){
             case ONE:
-                verificationCodeService.validated(CodeEnum.EMAIL_RESET_EMAIL_CODE.getKey() + email ,code);
+                verificationCodeService.validated(CodeEnum.PHONE_RESET_PHONE_CODE.getKey() + phone,code);
                 break;
             case TWO:
-                verificationCodeService.validated(CodeEnum.EMAIL_RESET_PWD_CODE.getKey() + email ,code);
+                verificationCodeService.validated(CodeEnum.PHONE_RESET_PWD_CODE.getKey() + phone,code);
                 break;
             default:
                 break;

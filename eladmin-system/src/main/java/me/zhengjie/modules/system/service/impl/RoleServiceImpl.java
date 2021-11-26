@@ -27,7 +27,7 @@ import me.zhengjie.modules.system.repository.RoleRepository;
 import me.zhengjie.modules.system.repository.UserRepository;
 import me.zhengjie.modules.system.service.RoleService;
 import me.zhengjie.modules.system.service.dto.RoleDto;
-import me.zhengjie.modules.system.service.dto.RoleQueryCriteria;
+import me.zhengjie.modules.system.service.dto.criteria.RoleQueryCriteria;
 import me.zhengjie.modules.system.service.dto.RoleSmallDto;
 import me.zhengjie.modules.system.service.dto.UserDto;
 import me.zhengjie.modules.system.service.mapstruct.RoleMapper;
@@ -113,7 +113,6 @@ public class RoleServiceImpl implements RoleService {
         role.setName(resources.getName());
         role.setDescription(resources.getDescription());
         role.setDataScope(resources.getDataScope());
-        role.setDepts(resources.getDepts());
         role.setLevel(resources.getLevel());
         roleRepository.save(role);
         // 更新相关缓存

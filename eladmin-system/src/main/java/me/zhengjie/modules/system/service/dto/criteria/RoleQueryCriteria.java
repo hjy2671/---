@@ -13,21 +13,24 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package me.zhengjie.modules.system.service.dto;
+package me.zhengjie.modules.system.service.dto.criteria;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import java.io.Serializable;
+import me.zhengjie.annotation.Query;
+
+import java.sql.Timestamp;
+import java.util.List;
 
 /**
-* @author Zheng Jie
-* @date 2019-6-10 16:32:18
-*/
+ * @author Zheng Jie
+ * 公共查询类
+ */
 @Data
-@NoArgsConstructor
-public class JobSmallDto implements Serializable {
+public class RoleQueryCriteria {
 
-    private Long id;
+    @Query(blurry = "name,description")
+    private String blurry;
 
-    private String name;
+    @Query(type = Query.Type.BETWEEN)
+    private List<Timestamp> createTime;
 }

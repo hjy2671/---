@@ -15,7 +15,6 @@
  */
 package me.zhengjie.modules.system.service;
 
-import me.zhengjie.domain.vo.EmailVo;
 
 /**
  * @author Zheng Jie
@@ -23,14 +22,13 @@ import me.zhengjie.domain.vo.EmailVo;
  */
 public interface VerifyService {
 
+
     /**
      * 发送验证码
-     * @param email /
-     * @param key /
-     * @return /
+     * @param phone 手机号
+     * @param key key
      */
-    EmailVo sendEmail(String email, String key);
-
+    void sendSms(String phone, String key);
 
     /**
      * 验证

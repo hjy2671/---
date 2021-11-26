@@ -15,22 +15,18 @@
  */
 package me.zhengjie.modules.system.rest;
 
-import cn.hutool.core.collection.CollectionUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import me.zhengjie.annotation.Log;
 import me.zhengjie.config.RsaProperties;
-import me.zhengjie.modules.system.domain.Dept;
-import me.zhengjie.modules.system.service.DataService;
 import me.zhengjie.modules.system.domain.User;
 import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.modules.system.domain.vo.UserPassVo;
-import me.zhengjie.modules.system.service.DeptService;
 import me.zhengjie.modules.system.service.RoleService;
 import me.zhengjie.modules.system.service.dto.RoleSmallDto;
 import me.zhengjie.modules.system.service.dto.UserDto;
-import me.zhengjie.modules.system.service.dto.UserQueryCriteria;
+import me.zhengjie.modules.system.service.dto.criteria.UserQueryCriteria;
 import me.zhengjie.modules.system.service.VerifyService;
 import me.zhengjie.utils.*;
 import me.zhengjie.modules.system.service.UserService;
@@ -40,8 +36,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,8 +56,6 @@ public class UserController {
 
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
-    private final DataService dataService;
-    private final DeptService deptService;
     private final RoleService roleService;
     private final VerifyService verificationCodeService;
 
@@ -78,28 +70,7 @@ public class UserController {
     @GetMapping
     @PreAuthorize("@el.check('user:list')")
     public ResponseEntity<Object> query(UserQueryCriteria criteria, Pageable pageable){
-        if (!ObjectUtils.isEmpty(criteria.getDeptId())) {
-            criteria.getDeptIds().add(criteria.getDeptId());
-            // 先查找是否存在子节点
-            List<Dept> data = deptService.findByPid(criteria.getDeptId());
-            // 然后把子节点的ID都加入到集合中
-            criteria.getDeptIds().addAll(deptService.getDeptChildren(data));
-        }
-        // 数据权限
-        List<Long> dataScopes = dataService.getDeptIds(userService.findByName(SecurityUtils.getCurrentUsername()));
-        // criteria.getDeptIds() 不为空并且数据权限不为空则取交集
-        if (!CollectionUtils.isEmpty(criteria.getDeptIds()) && !CollectionUtils.isEmpty(dataScopes)){
-            // 取交集
-            criteria.getDeptIds().retainAll(dataScopes);
-            if(!CollectionUtil.isEmpty(criteria.getDeptIds())){
-                return new ResponseEntity<>(userService.queryAll(criteria,pageable),HttpStatus.OK);
-            }
-        } else {
-            // 否则取并集
-            criteria.getDeptIds().addAll(dataScopes);
-            return new ResponseEntity<>(userService.queryAll(criteria,pageable),HttpStatus.OK);
-        }
-        return new ResponseEntity<>(PageUtil.toPage(null,0),HttpStatus.OK);
+        return new ResponseEntity<>(userService.queryAll(criteria,pageable),HttpStatus.OK);
     }
 
     @Log("新增用户")
@@ -173,17 +144,17 @@ public class UserController {
         return new ResponseEntity<>(userService.updateAvatar(avatar), HttpStatus.OK);
     }
 
-    @Log("修改邮箱")
-    @ApiOperation("修改邮箱")
-    @PostMapping(value = "/updateEmail/{code}")
-    public ResponseEntity<Object> updateEmail(@PathVariable String code,@RequestBody User user) throws Exception {
+    @Log("修改手机号")
+    @ApiOperation("修改手机号")
+    @PostMapping(value = "/updatePhone/{code}")
+    public ResponseEntity<Object> updatePhone(@PathVariable String code,@RequestBody User user) throws Exception {
         String password = RsaUtils.decryptByPrivateKey(RsaProperties.privateKey,user.getPassword());
         UserDto userDto = userService.findByName(SecurityUtils.getCurrentUsername());
         if(!passwordEncoder.matches(password, userDto.getPassword())){
             throw new BadRequestException("密码错误");
         }
-        verificationCodeService.validated(CodeEnum.EMAIL_RESET_EMAIL_CODE.getKey() + user.getEmail(), code);
-        userService.updateEmail(userDto.getUsername(),user.getEmail());
+        //verificationCodeService.validated(CodeEnum.PHONE_RESET_PHONE_CODE.getKey() + user.getPhone(), code);
+        userService.updatePhone(userDto.getUsername(), user.getPhone());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
