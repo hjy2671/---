@@ -27,11 +27,9 @@ import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.modules.system.service.VerifyService;
 import me.zhengjie.utils.RedisUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 
