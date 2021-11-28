@@ -67,6 +67,16 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     void updatePhone(String username, String phone);
 
     /**
+     *
+     * @param username 用户名
+     * @param status 状态
+     */
+    @Transactional
+    @Modifying
+    @Query(value = "update sys_user set status = ?2 where username = ?1",nativeQuery = true)
+    void updateStatus(String username, String status);
+
+    /**
      * 根据角色查询用户
      * @param roleId /
      * @return /

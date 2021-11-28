@@ -16,8 +16,10 @@
 
 package me.zhengjie.utils;
 
+import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -29,6 +31,37 @@ public class DateUtil {
 
     public static final DateTimeFormatter DFY_MD_HMS = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     public static final DateTimeFormatter DFY_MD = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    public static final SimpleDateFormat SDF_YMD= new SimpleDateFormat("yyyy-MM-dd");
+
+
+    public static String format(Date target){
+        return SDF_YMD.format(target);
+    }
+
+    /**
+     * 将日期设置为当前月的最后一天
+     * @param date 原日期
+     * @return 新日期
+     */
+    public static Date getFirstDayOfMonthDate(Date date){
+        final Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        return calendar.getTime();
+    }
+
+    /**
+     * 将日期设置为当前月的最后一天
+     * @param date 原日期
+     * @return 新日期
+     */
+    public static Date getLastDayOfMonthDate(Date date){
+        final Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH) + 1);
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) - 1);
+        return calendar.getTime();
+    }
 
     /**
      * LocalDateTime 转时间戳

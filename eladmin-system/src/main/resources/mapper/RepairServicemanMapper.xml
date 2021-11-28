@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="me.zhengjie.modules.system.service.mapper.RepairServicemanMapper">
+    <select id="statisticsTask" resultType="me.zhengjie.modules.system.service.dto.ServiceManTaskStatistics">
+        SELECT
+            count( ra.`status` IN ( '0', '1', '2' ) OR NULL ) AS 'notFinishNum',
+            count( ra.STATUS = '3' OR NULL ) AS 'finishNum'
+        FROM
+            sys_repair_serviceman rs
+                LEFT JOIN sys_repair_application ra ON rs.repair_id = ra.id
+    </select>
+</mapper>

@@ -1,5 +1,6 @@
 package me.zhengjie.modules.system.service.dto.criteria;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiParam;
 import lombok.Data;
 import me.zhengjie.annotation.Query;
@@ -11,19 +12,23 @@ import java.util.Date;
 public class RepairApplicationCriteria {
 
     @ApiParam("选择时间-年月")
-    @DateTimeFormat(pattern = "YYYY-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date date;
 
     @ApiParam(value = "起始时间",hidden = true)
     @Query(type = Query.Type.GREATER_THAN, propName = "finishTime")
-    private Date from;
+    private String from;
 
     @ApiParam(value = "结束时间",hidden = true)
     @Query(type = Query.Type.LESS_THAN, propName = "finishTime")
-    private Date to;
+    private String to;
 
     @ApiParam(value = "提供者id")
     @Query
     private Long providerId;
+
+    @ApiParam(value = "状态")
+    @Query
+    private String status;
 
 }

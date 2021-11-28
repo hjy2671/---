@@ -15,7 +15,12 @@
  */
 package me.zhengjie.utils;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 import java.util.*;
 
 /**
@@ -58,6 +63,23 @@ public class PageUtil extends cn.hutool.core.util.PageUtil {
         map.put("content",object);
         map.put("totalElements",totalElements);
         return map;
+    }
+
+    public static <T> IPage<T> toMybatisPage(Pageable pageable) {
+        return toMybatisPage(pageable, false);
+    }
+
+    public static <T> IPage<T> toMybatisPage(Pageable pageable, boolean ignoreOrderBy) {
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<T> page = new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(pageable.getPageNumber() + 1, pageable.getPageSize());
+        if (!ignoreOrderBy) {
+            for (Sort.Order order : pageable.getSort()) {
+                OrderItem orderItem = new OrderItem();
+                orderItem.setAsc(order.isAscending());
+                orderItem.setColumn(com.baomidou.mybatisplus.core.toolkit.StringUtils.camelToUnderline(order.getProperty()));
+                page.addOrder(orderItem);
+            }
+        }
+        return page;
     }
 
 }

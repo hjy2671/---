@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="me.zhengjie.modules.system.service.mapper.RepairApplicationMapper">
+    <select id="queryAll" resultType="me.zhengjie.modules.system.service.dto.RepairApplicationDetailsDto">
+        SELECT
+            ra.id,
+            ra.fault_details,
+            ra.fault_location,
+            ra.picture,
+            ra.emergency_degree,
+            ra.`status`,
+            ra.found_time,
+            ra.start_time,
+            ra.finish_time,
+            ra.provider_id,
+            rs.serviceman_id,
+            up.nick_name AS 'providerNick',
+            us.nick_name AS 'repairNick',
+            ra.grade,
+            count( type = '1' OR NULL ) AS 'likes',
+            count( type = '0' OR NULL ) AS 'notLikes'
+        FROM
+            sys_repair_application ra
+                LEFT JOIN sys_repair_serviceman rs ON ra.id = rs.repair_id
+                LEFT JOIN sys_user us ON rs.serviceman_id = us.user_id
+                LEFT JOIN sys_user up ON ra.provider_id = up.user_id
+                LEFT JOIN sys_like_or_not l ON l.repair_id = ra.id
+        ${ew.customSqlSegment}
+        GROUP BY
+            ra.id,
+            rs.serviceman_id,
+            up.nick_name,
+            us.nick_name
+    </select>
+</mapper>

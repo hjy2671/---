@@ -51,4 +51,7 @@ public class RepairApplication extends CommonEntity<RepairApplication> implement
     @ApiModelProperty(value = "提供者id")
     private Long providerId;
 
+    @ApiModelProperty(value = "星级")
+    private String grade;
+
 }

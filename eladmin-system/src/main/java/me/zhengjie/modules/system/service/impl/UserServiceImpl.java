@@ -150,6 +150,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void updateStatus(String username, String status) {
+        userRepository.updateStatus(username, status);
+        delCaches(findByName(username).getId(), status);
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(Set<Long> ids) {
         for (Long id : ids) {

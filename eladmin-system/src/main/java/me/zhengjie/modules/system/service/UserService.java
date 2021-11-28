@@ -113,4 +113,11 @@ public interface UserService {
      * @param phone 手机号
      */
     void updatePhone(String username, String phone);
+
+    /**
+     * 用户修改状态
+     * @param username 用户名
+     * @param status 状态
+     */
+    void updateStatus(String username, String status);
 }
