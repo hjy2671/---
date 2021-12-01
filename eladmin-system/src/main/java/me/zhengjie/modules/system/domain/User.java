@@ -66,7 +66,7 @@ public class User extends BaseEntity implements Serializable {
     private String phone;
 
     @ApiModelProperty(value = "用户性别")
-    private String gender;
+    private String gender = "男";
 
     @ApiModelProperty(value = "头像真实名称",hidden = true)
     private String avatarName;
@@ -77,9 +77,8 @@ public class User extends BaseEntity implements Serializable {
     @ApiModelProperty(value = "密码")
     private String password;
 
-    @NotNull
     @ApiModelProperty(value = "是否启用")
-    private Boolean enabled;
+    private Boolean enabled = true;
 
     @ApiModelProperty(value = "是否为admin账号", hidden = true)
     private Boolean isAdmin = false;

@@ -71,6 +71,8 @@ public interface UserService {
      */
     void updatePass(String username, String encryptPassword);
 
+    void updatePassByPhone(String phone, String encryptPassword);
+
     /**
      * 修改头像
      * @param file 文件

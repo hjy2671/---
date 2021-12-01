@@ -30,6 +30,7 @@ import lombok.Getter;
 public enum CodeEnum {
 
     PHONE_RESET_PWD_CODE("phone_reset_pwd_code_", "通过手机号码重置密码"),
+    PHONE_REGISTER_CODE("phone_register_code_", "注册发送验证码"),
     PHONE_RESET_PHONE_CODE("phone_reset_phone_code_", "通过手机号重置手机号");
 
     private final String key;

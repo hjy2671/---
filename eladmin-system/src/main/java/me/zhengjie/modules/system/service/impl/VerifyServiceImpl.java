@@ -75,7 +75,10 @@ public class VerifyServiceImpl implements VerifyService {
         HashMap<String, String> map = new HashMap<>();
         map.put("code", code);
         SendSmsResponse sms = null;
-
+        redisUtils.set(redisKey, code, expiration);
+        System.out.println(code);
+        if (true)
+            return;
         try {
             Client client = this.createClient(accessKeyId, accessKeySecret);
             SendSmsRequest sendSmsRequest = new SendSmsRequest()

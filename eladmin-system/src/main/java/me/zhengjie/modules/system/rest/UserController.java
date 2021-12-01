@@ -15,14 +15,19 @@
  */
 package me.zhengjie.modules.system.rest;
 
+import cn.hutool.core.bean.BeanUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import me.zhengjie.annotation.AnonymousAccess;
 import me.zhengjie.annotation.Log;
 import me.zhengjie.config.RsaProperties;
+import me.zhengjie.modules.system.domain.Role;
 import me.zhengjie.modules.system.domain.User;
 import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.modules.system.domain.vo.UserPassVo;
+import me.zhengjie.modules.system.domain.vo.UserResetVo;
+import me.zhengjie.modules.system.domain.vo.UserVo;
 import me.zhengjie.modules.system.service.RoleService;
 import me.zhengjie.modules.system.service.dto.RoleSmallDto;
 import me.zhengjie.modules.system.service.dto.UserDto;
@@ -138,6 +143,15 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @ApiOperation("重置密码")
+    @PostMapping(value = "/reset")
+    @AnonymousAccess
+    public ResponseEntity<Object> resetPass(@Validated @RequestBody UserResetVo userResetVo) {
+        verificationCodeService.validated(CodeEnum.PHONE_RESET_PWD_CODE.getKey() + userResetVo.getPhone(), userResetVo.getCode());
+        userService.updatePassByPhone(userResetVo.getPhone(), passwordEncoder.encode(userResetVo.getPassword()));
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @ApiOperation("修改头像")
     @PostMapping(value = "/updateAvatar")
     public ResponseEntity<Object> updateAvatar(@RequestParam MultipartFile avatar){
@@ -168,5 +182,22 @@ public class UserController {
         if (currentLevel > optLevel) {
             throw new BadRequestException("角色权限不足");
         }
+    }
+
+    @Log("注册用户")
+    @ApiOperation("注册用户")
+    @PostMapping("/register")
+    @AnonymousAccess
+    public ResponseEntity<Object> register(@Validated @RequestBody UserVo resources){
+        if (!resources.getPassword().equals(resources.getRePassword())){
+            throw new RuntimeException("两次密码不相同");
+        }
+        resources.setPassword(passwordEncoder.encode(resources.getPassword()));
+        verificationCodeService.validated(CodeEnum.PHONE_REGISTER_CODE.getKey() + resources.getPhone(), resources.getCode());
+
+        final User user = BeanUtil.copyProperties(resources, User.class);
+        user.setRoles(new HashSet<Role>(){{add(new Role(){{setId(2L);}});}});
+        userService.create(user);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

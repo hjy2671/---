@@ -185,6 +185,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    public void updatePassByPhone(String phone, String encryptPassword) {
+        userRepository.updatePassByPhone(phone, encryptPassword, new Date());
+        flushCache(userRepository.findByPhone(phone).getUsername());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public Map<String, String> updateAvatar(MultipartFile multipartFile) {
         // 文件大小验证
         FileUtil.checkSize(properties.getAvatarMaxSize(), multipartFile.getSize());

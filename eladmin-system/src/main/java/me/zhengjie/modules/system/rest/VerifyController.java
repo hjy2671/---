@@ -18,6 +18,7 @@ package me.zhengjie.modules.system.rest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import me.zhengjie.annotation.AnonymousAccess;
 import me.zhengjie.modules.system.service.VerifyService;
 import me.zhengjie.utils.enums.CodeBiEnum;
 import me.zhengjie.utils.enums.CodeEnum;
@@ -40,15 +41,24 @@ public class VerifyController {
 
     @PostMapping(value = "/resetPhone")
     @ApiOperation("重置手机号，发送验证码")
-    public ResponseEntity<Object> resetEmail(@RequestParam String phone){
+    public ResponseEntity<Object> resetPhone(@RequestParam String phone){
         verificationCodeService.sendSms(phone, CodeEnum.PHONE_RESET_PHONE_CODE.getKey());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping(value = "/phone/resetPass")
+    @AnonymousAccess
+    @GetMapping(value = "/register")
+    @ApiOperation("注册，发送验证码")
+    public ResponseEntity<Object> register(@RequestParam String phone){
+        verificationCodeService.sendSms(phone, CodeEnum.PHONE_REGISTER_CODE.getKey());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @AnonymousAccess
+    @GetMapping(value = "/phone/resetPass")
     @ApiOperation("重置密码，发送验证码")
     public ResponseEntity<Object> resetPass(@RequestParam String phone){
-
+        verificationCodeService.sendSms(phone, CodeEnum.PHONE_RESET_PWD_CODE.getKey());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
