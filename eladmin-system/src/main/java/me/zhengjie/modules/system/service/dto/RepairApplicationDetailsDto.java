@@ -1,12 +1,17 @@
 package me.zhengjie.modules.system.service.dto;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import me.zhengjie.utils.SecurityUtils;
 import me.zhengjie.utils.enums.RepairApplicationEmergencyDegreeEnum;
 import me.zhengjie.utils.enums.RepairApplicationStatusEnum;
+import org.springframework.beans.factory.annotation.Value;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Date;
 
 @Data
@@ -14,7 +19,7 @@ public class RepairApplicationDetailsDto {
 
     @TableId(type= IdType.AUTO)
     @ApiModelProperty(value = "ID", hidden = true)
-    private Long id;
+    private String id;
 
     @ApiModelProperty(value = "故障详情")
     private String faultDetails;
@@ -66,6 +71,15 @@ public class RepairApplicationDetailsDto {
 
     @ApiModelProperty(value = "维修人员id")
     private Long servicemanId;
+
+    @ApiModelProperty(value = "是否点过赞")
+    private boolean hasLike = false;
+
+    @ApiModelProperty(value = "是否点过踩")
+    private boolean hasNotLike = false;
+
+    @ApiModelProperty(value = "接受状态")
+    private String acceptStatus;
 
     public void setEmergencyDegree(String emergencyDegree) {
         this.emergencyDegree = emergencyDegree;

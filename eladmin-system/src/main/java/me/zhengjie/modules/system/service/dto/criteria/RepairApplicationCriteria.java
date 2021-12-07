@@ -1,6 +1,5 @@
 package me.zhengjie.modules.system.service.dto.criteria;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiParam;
 import lombok.Data;
 import me.zhengjie.annotation.Query;
@@ -27,8 +26,24 @@ public class RepairApplicationCriteria {
     @Query
     private Long providerId;
 
-    @ApiParam(value = "状态")
+    @ApiParam(value = "维修者id")
     @Query
+    private Long servicemanId;
+
+    @ApiParam(value = "提供者id")
+    @Query
+    private Long appointerId;
+
+    @ApiParam(value = "状态")
+    @Query(propName = "ra.status")
     private String status;
+
+    @ApiParam(value = "状态不等于")
+    @Query(propName = "ra.status", type = Query.Type.NOT_EQUAL )
+    private String raStatus;
+
+    @ApiParam(value = "接受状态")
+    @Query(propName = "rs.status", type = Query.Type.NOT_EQUAL)
+    private String rsStatus = "2";
 
 }

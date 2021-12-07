@@ -80,7 +80,9 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
             }
         }
 
-        return (1 - (float) d[n][m] / Math.max(str.length(), target.length())) * 100F;
+        final float result = (1 - (float) d[n][m] / Math.max(str.length(), target.length())) * 100F;
+        log.info("相似率计算结果" + result);
+        return result;
     }
 
     /**

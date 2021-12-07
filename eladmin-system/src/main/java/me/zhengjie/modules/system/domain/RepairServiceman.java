@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import lombok.experimental.Accessors;
@@ -26,10 +28,13 @@ public class RepairServiceman extends CommonEntity<RepairServiceman> implements 
     private String id;
 
     @ApiModelProperty(value = "报修id")
-    private Long repairId;
+    private String repairId;
 
     @ApiModelProperty(value = "维修人员id")
-    private Integer servicemanId;
+    private Long servicemanId;
+
+    @ApiModelProperty(value = "指派者id")
+    private Long appointerId;
 
     @ApiModelProperty(value = "状态")
     private String status;

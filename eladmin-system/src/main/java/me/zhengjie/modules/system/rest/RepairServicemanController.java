@@ -48,7 +48,7 @@ public class RepairServicemanController {
 
     @ApiOperation(value = "删除故报修信息与维修人员关系")
     @DeleteMapping
-    public ResponseEntity<Boolean> delete(Set<Long> ids){
+    public ResponseEntity<Boolean> delete(@RequestBody Set<Long> ids){
         return new ResponseEntity<>(repairServicemanService.removeByIds(ids), HttpStatus.OK);
     }
 
@@ -59,21 +59,27 @@ public class RepairServicemanController {
     }
 
     @ApiOperation(value = "接受任务")
-    @GetMapping("/accept")
-    public ResponseEntity<Object> accept(RepairServiceman resource){
+    @PostMapping("/accept")
+    public ResponseEntity<Object> accept(@RequestBody RepairServiceman resource){
         return new ResponseEntity<>(repairServicemanService.accept(resource), HttpStatus.OK);
     }
 
     @ApiOperation(value = "拒绝任务")
-    @GetMapping("/refuse")
-    public ResponseEntity<Object> refuse(RepairServiceman resource){
+    @PostMapping("/refuse")
+    public ResponseEntity<Object> refuse(@RequestBody RepairServiceman resource){
         return new ResponseEntity<>(repairServicemanService.refuse(resource), HttpStatus.OK);
     }
 
     @ApiOperation(value = "完成任务")
-    @GetMapping("/finish")
-    public ResponseEntity<Object> finish(RepairServiceman resource){
+    @PostMapping("/finish")
+    public ResponseEntity<Object> finish(@RequestBody RepairServiceman resource){
         return new ResponseEntity<>(repairServicemanService.finish(resource), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "查看指派给我的维修任务")
+    @GetMapping("/findAssignToMe")
+    public ResponseEntity<Object> findAssignToMe(){
+        return new ResponseEntity<>(repairServicemanService.findAssignToMe(SecurityUtils.getCurrentUserId()), HttpStatus.OK);
     }
 
 }

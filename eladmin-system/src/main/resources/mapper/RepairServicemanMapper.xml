@@ -9,4 +9,82 @@
             sys_repair_serviceman rs
                 LEFT JOIN sys_repair_application ra ON rs.repair_id = ra.id
     </select>
+    <select id="getTopOneLikesProviderNickname" resultType="java.lang.String">
+
+        SELECT
+            s.nick
+        FROM
+            (
+                SELECT
+                    ra.provider_id,
+                    u.nick_name AS 'nick',
+                    count( l.type = '1' OR NULL ) AS 'c'
+                FROM
+                    sys_repair_application ra
+                        LEFT JOIN sys_like_or_not l ON ra.id = l.repair_id
+                        LEFT JOIN sys_user u ON u.user_id = ra.provider_id
+                GROUP BY
+                    ra.provider_id,
+                     u.nick_name
+                ORDER BY
+                    c DESC
+            ) s
+        where s.provider_id is not null
+        LIMIT 1
+    </select>
+    <select id="getTopOneLikesServicemanNickname" resultType="java.lang.String">
+        SELECT
+            u.nick_name
+        FROM
+            sys_user u,(
+            SELECT
+                rs.serviceman_id AS 'id',
+                    count( l.type = '1' OR NULL ) AS 'c'
+            FROM
+                sys_repair_application ra
+                    LEFT JOIN sys_like_or_not l ON ra.id = l.repair_id
+                    LEFT JOIN sys_repair_serviceman rs ON rs.repair_id = ra.id
+            GROUP BY
+                rs.serviceman_id
+            ORDER BY
+                c DESC
+                LIMIT 1
+        ) s
+        WHERE
+            s.id = u.user_id
+    </select>
+    <select id="findAssignToMe"
+            resultType="me.zhengjie.modules.system.service.dto.RepairApplicationAssignToMeDto">
+        SELECT
+            ra.id,
+            rs.id as 'repairServicemanId',
+            ra.fault_details,
+            ra.fault_location,
+            ra.picture,
+            ra.emergency_degree,
+            ra.`status` AS 'repairStatus',
+            ra.found_time,
+            ra.start_time,
+            ra.finish_time,
+            rs.STATUS AS 'acceptStatus'
+        FROM
+            sys_repair_application ra
+                LEFT JOIN sys_repair_serviceman rs ON ra.id = rs.repair_id
+        WHERE
+            ( ra.STATUS = '1' OR ra.STATUS = '2' )
+          AND rs.serviceman_id = #{userId}
+          AND (rs.STATUS = '0' OR rs.STATUS = '1')
+    </select>
+    <select id="findUserByRole" resultType="me.zhengjie.modules.system.service.dto.SimpleUserDto">
+        SELECT
+            u.user_id,
+            u.nick_name
+        FROM
+            sys_user u
+                LEFT JOIN sys_users_roles ur ON ur.user_id = u.user_id
+                LEFT JOIN sys_role r ON r.role_id = ur.role_id
+        WHERE
+            r.NAME = #{role}
+    </select>
+
 </mapper>

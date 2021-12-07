@@ -7,10 +7,13 @@ import me.zhengjie.base.QueryHelpMybatisPlus;
 import me.zhengjie.base.impl.CommonServiceImpl;
 import me.zhengjie.modules.system.domain.RepairApplication;
 import me.zhengjie.modules.system.domain.RepairServiceman;
+import me.zhengjie.modules.system.domain.User;
 import me.zhengjie.modules.system.service.RepairApplicationService;
 import me.zhengjie.modules.system.service.RepairServicemanService;
 import me.zhengjie.modules.system.service.UserService;
+import me.zhengjie.modules.system.service.dto.RepairApplicationAssignToMeDto;
 import me.zhengjie.modules.system.service.dto.ServiceManTaskStatistics;
+import me.zhengjie.modules.system.service.dto.SimpleUserDto;
 import me.zhengjie.modules.system.service.dto.criteria.RepairServicemanCriteria;
 import me.zhengjie.modules.system.service.mapper.RepairServicemanMapper;
 import me.zhengjie.utils.ConvertUtil;
@@ -24,6 +27,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
+import java.util.List;
 
 @Service
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
@@ -59,7 +65,7 @@ public class RepairServicemanServiceImpl extends CommonServiceImpl<RepairService
             updateById(new RepairServiceman(){{setId(resource.getId());setStatus(RepairServicemanStatusEnum.val2.getCode());}});
 
             // 设置状态为处理中
-            repairApplicationService.updateById(new RepairApplication(){{setId(resource.getRepairId());setStatus(RepairApplicationStatusEnum.val3.getCode());}});
+            repairApplicationService.updateById(new RepairApplication(){{setStartTime(new Date());setId(resource.getRepairId());setStatus(RepairApplicationStatusEnum.val3.getCode());}});
 
             // 设置用户状态
             userService.updateStatus(SecurityUtils.getCurrentUsername(), UserStatusEnum.val2.getCode());
@@ -75,7 +81,7 @@ public class RepairServicemanServiceImpl extends CommonServiceImpl<RepairService
 
         try {
             // 设置状态为已拒绝
-            updateById(new RepairServiceman(){{setId(resource.getId());setStatus(RepairServicemanStatusEnum.val3.getCode());}});
+            updateById(new RepairServiceman(){{setRefuseReason(resource.getRefuseReason());setId(resource.getId());setStatus(RepairServicemanStatusEnum.val3.getCode());}});
 
             // 设置状态为待处理
             repairApplicationService.updateById(new RepairApplication(){{setId(resource.getRepairId());setStatus(RepairApplicationStatusEnum.val1.getCode());}});
@@ -90,12 +96,22 @@ public class RepairServicemanServiceImpl extends CommonServiceImpl<RepairService
     public boolean finish(RepairServiceman resource) {
         try {
             // 设置状态为待处理
-            repairApplicationService.updateById(new RepairApplication(){{setId(resource.getRepairId());setStatus(RepairApplicationStatusEnum.val4.getCode());}});
+            repairApplicationService.updateById(new RepairApplication(){{setFinishTime(new Date());setId(resource.getRepairId());setStatus(RepairApplicationStatusEnum.val4.getCode());}});
         }catch (Exception e){
             throw new RuntimeException("完成任务失败，请刷新页面");
         }
 
         return true;
+    }
+
+    @Override
+    public List<RepairApplicationAssignToMeDto> findAssignToMe(Long userId) {
+        return repairServicemanMapper.findAssignToMe(userId);
+    }
+
+    @Override
+    public List<SimpleUserDto> findUserByRole(String role) {
+        return repairServicemanMapper.findUserByRole(role);
     }
 
 

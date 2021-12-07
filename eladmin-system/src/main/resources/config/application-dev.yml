@@ -113,14 +113,16 @@ sms:
 # 文件存储路径
 file:
   mac:
-    path: ~/file/
+    path: ~/picture/
     avatar: ~/avatar/
   linux:
-    path: /home/eladmin/file/
+    path: /home/eladmin/picture/
     avatar: /home/eladmin/avatar/
   windows:
-    path: C:\eladmin\file\
-    avatar: C:\eladmin\avatar\
+    path: E:\Temp\picture\
+    avatar: E:\Temp\avatar\
   # 文件大小 /M
   maxSize: 100
   avatarMaxSize: 5
+  access:
+    port: 8000

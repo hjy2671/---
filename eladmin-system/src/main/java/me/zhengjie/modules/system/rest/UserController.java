@@ -25,16 +25,15 @@ import me.zhengjie.config.RsaProperties;
 import me.zhengjie.modules.system.domain.Role;
 import me.zhengjie.modules.system.domain.User;
 import me.zhengjie.exception.BadRequestException;
+import me.zhengjie.modules.system.domain.UserMyBatis;
 import me.zhengjie.modules.system.domain.vo.UserPassVo;
 import me.zhengjie.modules.system.domain.vo.UserResetVo;
 import me.zhengjie.modules.system.domain.vo.UserVo;
-import me.zhengjie.modules.system.service.RoleService;
+import me.zhengjie.modules.system.service.*;
 import me.zhengjie.modules.system.service.dto.RoleSmallDto;
 import me.zhengjie.modules.system.service.dto.UserDto;
 import me.zhengjie.modules.system.service.dto.criteria.UserQueryCriteria;
-import me.zhengjie.modules.system.service.VerifyService;
 import me.zhengjie.utils.*;
-import me.zhengjie.modules.system.service.UserService;
 import me.zhengjie.utils.enums.CodeEnum;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -61,8 +60,11 @@ public class UserController {
 
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
+    private final UserServiceMyBatis userServiceMyBatis;
     private final RoleService roleService;
     private final VerifyService verificationCodeService;
+    private final RepairApplicationService repairApplicationService;
+    private final RepairServicemanService repairServicemanService;
 
     @ApiOperation("导出用户数据")
     @GetMapping(value = "/download")
@@ -111,6 +113,19 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @Log("修改用户：前台页面")
+    @ApiOperation("修改用户：前台页面")
+    @PutMapping(value = "/updateInfo")
+    public ResponseEntity<Object> updateInfo(@RequestBody UserMyBatis resources){
+        if (StringUtils.isEmpty(resources.getNickName()) || resources.getNickName().length() > 8 ) {
+            throw new RuntimeException("昵称输入有误");
+        }
+        resources.setUserId(SecurityUtils.getCurrentUserId());
+        userServiceMyBatis.updateById(resources);
+        userService.delCaches(resources.getUserId(), SecurityUtils.getCurrentUsername());
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
     @Log("删除用户")
     @ApiOperation("删除用户")
     @DeleteMapping
@@ -154,7 +169,7 @@ public class UserController {
 
     @ApiOperation("修改头像")
     @PostMapping(value = "/updateAvatar")
-    public ResponseEntity<Object> updateAvatar(@RequestParam MultipartFile avatar){
+    public ResponseEntity<Object> updateAvatar(@RequestParam("avatar") MultipartFile avatar){
         return new ResponseEntity<>(userService.updateAvatar(avatar), HttpStatus.OK);
     }
 
@@ -200,4 +215,19 @@ public class UserController {
         userService.create(user);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
+
+    @Log("统计用户报修相关信息的统计")
+    @ApiOperation("统计用户报修相关信息的统计")
+    @GetMapping("/statistic")
+    public ResponseEntity<Object> statistic(){
+        return new ResponseEntity<>(repairApplicationService.statistics(), HttpStatus.OK);
+    }
+
+    @Log("查询维修人员")
+    @ApiOperation("查询维修人员")
+    @GetMapping("/findServiceman")
+    public ResponseEntity<Object> findServiceman(){
+        return new ResponseEntity<>(repairServicemanService.findUserByRole("维修人员"), HttpStatus.OK);
+    }
+
 }

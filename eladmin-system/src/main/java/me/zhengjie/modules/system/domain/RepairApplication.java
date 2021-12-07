@@ -1,14 +1,22 @@
 package me.zhengjie.modules.system.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import lombok.experimental.Accessors;
 import me.zhengjie.base.CommonEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Date;
 
 @Data
@@ -20,9 +28,9 @@ import java.util.Date;
 @TableName("sys_repair_application")
 public class RepairApplication extends CommonEntity<RepairApplication> implements Serializable {
 
-    @TableId(type= IdType.AUTO)
+    @TableId(type= IdType.ASSIGN_ID)
     @ApiModelProperty(value = "ID", hidden = true)
-    private Long id;
+    private String id;
 
     @ApiModelProperty(value = "故障详情")
     private String faultDetails;
@@ -54,4 +62,22 @@ public class RepairApplication extends CommonEntity<RepairApplication> implement
     @ApiModelProperty(value = "星级")
     private String grade;
 
+    public boolean isNull(){
+        return faultDetails == null && faultLocation == null;
+    }
+
+    @TableField(exist = false)
+    private static final StringBuilder builder = new StringBuilder();
+
+    public void setPicture(String picture, @Value("${server.port}") String port) throws UnknownHostException {
+        if (picture != null){
+            picture = builder.append("http://")
+                    .append(InetAddress.getLocalHost()
+                    .getHostAddress())
+                    .append(":").append(port)
+                    .append("/").append(picture).toString();
+            builder.setLength(0);
+        }
+        this.picture = picture;
+    }
 }

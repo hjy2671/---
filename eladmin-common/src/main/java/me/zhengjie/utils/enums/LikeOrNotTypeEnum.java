@@ -7,8 +7,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum LikeOrNotTypeEnum {
 
-    like("0", "赞"),
-    not("1", "踩"),
+    like("1", "赞"),
+    not("0", "踩"),
     other("", "其他");
 
     private String code;

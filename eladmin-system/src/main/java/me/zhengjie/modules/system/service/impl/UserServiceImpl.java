@@ -204,7 +204,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUsername(SecurityUtils.getCurrentUsername());
         String oldPath = user.getAvatarPath();
         File file = FileUtil.upload(multipartFile, properties.getPath().getAvatar());
-        user.setAvatarPath(Objects.requireNonNull(file).getPath());
+        user.setAvatarPath(subPath(Objects.requireNonNull(file).getAbsolutePath().replace("\\", "/")));
         user.setAvatarName(file.getName());
         userRepository.save(user);
         if (StringUtils.isNotBlank(oldPath)) {
@@ -213,8 +213,12 @@ public class UserServiceImpl implements UserService {
         @NotBlank String username = user.getUsername();
         flushCache(username);
         return new HashMap<String, String>(1) {{
-            put("avatar", file.getName());
+            put("avatar", user.getAvatarPath());
         }};
+    }
+
+    private String subPath(String path){
+        return path.substring(path.indexOf("/avatar"));
     }
 
     @Override
@@ -239,6 +243,7 @@ public class UserServiceImpl implements UserService {
      *
      * @param id /
      */
+    @Override
     public void delCaches(Long id, String username) {
         redisUtils.del(CacheKey.USER_ID + id);
         flushCache(username);

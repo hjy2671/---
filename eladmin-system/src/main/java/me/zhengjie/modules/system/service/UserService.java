@@ -122,4 +122,6 @@ public interface UserService {
      * @param status 状态
      */
     void updateStatus(String username, String status);
+
+    void delCaches(Long id, String username);
 }

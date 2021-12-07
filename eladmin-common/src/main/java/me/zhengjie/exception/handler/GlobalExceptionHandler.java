@@ -15,18 +15,22 @@
  */
 package me.zhengjie.exception.handler;
 
+import io.lettuce.core.RedisConnectionException;
 import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.exception.BadInputException;
 import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.exception.EntityExistException;
 import me.zhengjie.exception.EntityNotFoundException;
 import me.zhengjie.utils.ThrowableUtil;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
+
 import java.util.Objects;
 import static org.springframework.http.HttpStatus.*;
 
@@ -115,6 +119,19 @@ public class GlobalExceptionHandler {
         return buildResponseEntity(ApiError.error(message));
     }
 
+    @ExceptionHandler(RedisConnectionFailureException.class)
+    public ResponseEntity<ApiError> handleRedisConnectionException(RedisConnectionFailureException e){
+        // 打印堆栈信息
+        log.error(ThrowableUtil.getStackTrace(e));
+        return buildResponseEntity(ApiError.error(REQUEST_TIMEOUT.value(), "缓存未开启"));
+    }
+
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<ApiError> handleMissingServletRequestPartException(MissingServletRequestPartException e){
+        // 打印堆栈信息
+        log.error(ThrowableUtil.getStackTrace(e));
+        return buildResponseEntity(ApiError.error(BAD_REQUEST.value(), "数据传输错误"));
+    }
     /**
      * 统一返回
      */

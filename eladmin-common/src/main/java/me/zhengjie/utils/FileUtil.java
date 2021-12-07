@@ -20,6 +20,7 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.poi.excel.BigExcelWriter;
 import cn.hutool.poi.excel.ExcelUtil;
 import me.zhengjie.exception.BadRequestException;
+import me.zhengjie.utils.enums.AcceptFileTypeEnum;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.slf4j.Logger;
@@ -32,6 +33,7 @@ import java.io.*;
 import java.security.MessageDigest;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -174,6 +176,66 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
             CloseUtil.close(ins);
         }
         return file;
+    }
+
+    public static List<File> saveFiles(List<MultipartFile> files, String path) {
+
+        List<File> list = new ArrayList<>();
+
+        for (MultipartFile file : files) {
+            try {
+                list.add(saveFile(file, path));
+            } catch (Exception e) {
+                list.forEach(FileUtil::del);
+                throw new RuntimeException("上传图片失败");
+            }
+        }
+        return list;
+    }
+
+    public static File saveFile(MultipartFile file, String path) {
+        String fileName = new SimpleDateFormat("yyyyMMddhhmmssS").format(new Date());
+        String suffix = getExtensionName(file.getOriginalFilename());
+        if (!AcceptFileTypeEnum.accept(suffix)){
+            throw new RuntimeException("图片类型不支持,仅支持");
+        }
+        String newName = fileName + "." + suffix;
+        String newPath = path + SecurityUtils.getCurrentUsername() + "/";
+        final File dest = new File(newPath + newName);
+
+        if (!dest.getParentFile().exists()) {
+            if (!dest.getParentFile().mkdirs()) {
+                System.out.println("was not successful.");
+            }
+        }
+
+        InputStream inputStream = null;
+        FileOutputStream outputStream = null;
+        try {
+            inputStream = file.getInputStream();
+            outputStream = new FileOutputStream(dest);
+            final byte[] bytes = new byte[1024];
+            int len = 0;
+            while ((len = inputStream.read(bytes)) != -1){
+                outputStream.write(bytes, 0, len);
+            }
+            outputStream.flush();
+        } catch (IOException e) {
+            throw new RuntimeException("上传图片失败");
+        } finally {
+            try {
+                if (inputStream != null){
+                    inputStream.close();
+                }
+                if (outputStream != null){
+                    outputStream.close();
+                }
+            } catch (IOException e) {
+                log.error("关闭流失败");
+            }
+        }
+        return dest;
+
     }
 
     /**

@@ -31,5 +31,77 @@
             rs.serviceman_id,
             up.nick_name,
             us.nick_name
+        order by ra.finish_time desc, likes desc
+    </select>
+    <select id="getRepairStatistics" resultType="me.zhengjie.modules.system.service.dto.RepairStatistics">
+        SELECT
+        count( ra.`status` = '3' OR NULL ) AS 'completeNum',
+        count( '3' > ra.`status` OR NULL ) AS 'repairingNum'
+        FROM
+        sys_repair_application ra
+    </select>
+    <select id="getUserStatistics" resultType="me.zhengjie.modules.system.service.dto.UserStatistics">
+        SELECT
+        count( l.type = '1' OR NULL ) AS 'likes',
+        count( l.type = '0' OR NULL ) AS 'notLikes',
+        count( DISTINCT CASE WHEN rs.serviceman_id = #{userId} AND ra.`status` = '3' THEN ra.id END ) AS 'resolveNum',
+        count( DISTINCT CASE WHEN ra.provider_id = #{userId} THEN ra.id END ) AS 'providerNum',
+        count( DISTINCT CASE WHEN rs.appointer_id = #{userId} THEN ra.id END ) AS 'assignNum'
+        FROM
+        sys_repair_application ra
+        LEFT JOIN sys_like_or_not l ON l.repair_id = ra.id
+        LEFT JOIN sys_repair_serviceman rs ON rs.repair_id = ra.id
+        WHERE
+        ( rs.serviceman_id = 11 OR ra.provider_id = #{userId} OR rs.appointer_id = 11 )
+        AND rs.`status` &lt;&gt; '2'
+    </select>
+    <select id="findAsassignByMe"
+            resultType="me.zhengjie.modules.system.service.dto.RepairApplicationAssignToMeDto">
+        SELECT
+            ra.id,
+            rs.id AS 'repairServicemanId',
+            ra.fault_details,
+            ra.fault_location,
+            ra.picture,
+            ra.emergency_degree,
+            ra.`status` AS 'repairStatus',
+            ra.found_time,
+            ra.start_time,
+            ra.finish_time,
+            rs.STATUS AS 'acceptStatus'
+        FROM
+            sys_repair_application ra
+                LEFT JOIN sys_repair_serviceman rs ON ra.id = rs.repair_id
+        WHERE
+            ( ra.STATUS &lt;&gt; '3' )
+          AND rs.appointer_id = #{userId}
+        order by ra.finish_time desc
+    </select>
+    <select id="queryProvideByUserId"
+            resultType="me.zhengjie.modules.system.service.dto.RepairApplicationDetailsDto">
+        SELECT
+        ra.id,
+        ra.fault_details,
+        ra.fault_location,
+        ra.picture,
+        ra.emergency_degree,
+        ra.`status`,
+        ra.found_time,
+        ra.start_time,
+        ra.finish_time,
+        ra.provider_id,
+        rs.serviceman_id,
+        rs.`status` as 'acceptStatus'
+        FROM
+        sys_repair_application ra
+        LEFT JOIN sys_repair_serviceman rs ON ra.id = rs.repair_id
+        WHERE
+        ( provider_id = #{id} AND ra.STATUS &lt;&gt; '3' ) and ( rs.STATUS &lt;&gt; '2' or rs.STATUS is null)
+        GROUP BY
+        ra.id,
+        rs.serviceman_id,
+        rs.`status`
+        ORDER BY
+        ra.found_time DESC
     </select>
 </mapper>
