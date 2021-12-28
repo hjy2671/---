@@ -54,7 +54,7 @@
 
 #### 图片预览
 
-![image](picture/login.png)
+![image](https://raw.githubusercontent.com/hjy2671/---/master/picture/find.png)
 
 ![image](picture/find.png)
 
