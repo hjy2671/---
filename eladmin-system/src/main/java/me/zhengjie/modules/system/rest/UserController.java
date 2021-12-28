@@ -16,6 +16,7 @@
 package me.zhengjie.modules.system.rest;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -182,6 +183,9 @@ public class UserController {
         if(!passwordEncoder.matches(password, userDto.getPassword())){
             throw new BadRequestException("密码错误");
         }
+        if (userServiceMyBatis.list(new QueryWrapper<UserMyBatis>().eq("phone", user.getPhone())).size() != 0) {
+            throw new RuntimeException("手机号已被绑定");
+        }
         verificationCodeService.validated(CodeEnum.PHONE_RESET_PHONE_CODE.getKey() + user.getPhone(), code);
         userService.updatePhone(userDto.getUsername(), user.getPhone());
         return new ResponseEntity<>(HttpStatus.OK);
@@ -227,7 +231,7 @@ public class UserController {
     @ApiOperation("查询维修人员")
     @GetMapping("/findServiceman")
     public ResponseEntity<Object> findServiceman(){
-        return new ResponseEntity<>(repairServicemanService.findUserByRole("维修人员"), HttpStatus.OK);
+        return new ResponseEntity<>(repairServicemanService.findUserByRole(4), HttpStatus.OK);
     }
 
 }

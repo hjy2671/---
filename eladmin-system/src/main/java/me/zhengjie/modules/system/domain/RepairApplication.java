@@ -60,7 +60,10 @@ public class RepairApplication extends CommonEntity<RepairApplication> implement
     private Long providerId;
 
     @ApiModelProperty(value = "星级")
-    private String grade;
+    private String grade = "0";
+
+    @ApiModelProperty(value = "评价")
+    private String evaluation;
 
     public boolean isNull(){
         return faultDetails == null && faultLocation == null;

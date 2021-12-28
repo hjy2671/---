@@ -21,6 +21,6 @@ public interface RepairServicemanMapper extends CommonMapper<RepairServiceman> {
 
     List<RepairApplicationAssignToMeDto> findAssignToMe(Long userId);
 
-    List<SimpleUserDto> findUserByRole(String role);
+    List<SimpleUserDto> findUserByRole(Integer role);
 
 }

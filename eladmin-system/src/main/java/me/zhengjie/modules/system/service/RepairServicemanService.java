@@ -31,6 +31,6 @@ public interface RepairServicemanService extends CommonService<RepairServiceman>
 
     List<RepairApplicationAssignToMeDto> findAssignToMe(Long userId);
 
-    List<SimpleUserDto> findUserByRole(String role);
+    List<SimpleUserDto> findUserByRole(Integer role);
 
 }

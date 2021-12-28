@@ -19,8 +19,11 @@ import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
 import me.zhengjie.base.BaseDTO;
+import me.zhengjie.modules.system.domain.RolePath;
+
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -34,6 +37,8 @@ public class UserDto extends BaseDTO implements Serializable {
     private Long id;
 
     private Set<RoleSmallDto> roles;
+
+    private List<RolePath> rolePathList;
 
     private String username;
 

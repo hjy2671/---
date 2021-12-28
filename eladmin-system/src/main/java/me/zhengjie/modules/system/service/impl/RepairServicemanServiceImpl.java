@@ -110,7 +110,7 @@ public class RepairServicemanServiceImpl extends CommonServiceImpl<RepairService
     }
 
     @Override
-    public List<SimpleUserDto> findUserByRole(String role) {
+    public List<SimpleUserDto> findUserByRole(Integer role) {
         return repairServicemanMapper.findUserByRole(role);
     }
 

@@ -104,9 +104,9 @@ ip:
 
 # sms服务
 sms:
-  accessKeyId: LTAI5t67yCabvYKXm8r3NcMM
-  accessKeySecret: JYvlRh48lykc4Bslt1cyfAv4Ttw6lS
-  signName: 晨曦黎明
+  accessKeyId: #
+  accessKeySecret: #
+  signName: #
   templateCode: SMS_206561186
   domain: dysmsapi.aliyuncs.com
 

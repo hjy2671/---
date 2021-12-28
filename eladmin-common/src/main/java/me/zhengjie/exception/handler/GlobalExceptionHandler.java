@@ -15,7 +15,6 @@
  */
 package me.zhengjie.exception.handler;
 
-import io.lettuce.core.RedisConnectionException;
 import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.exception.BadInputException;
 import me.zhengjie.exception.BadRequestException;
@@ -26,6 +25,7 @@ import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -131,6 +131,16 @@ public class GlobalExceptionHandler {
         // 打印堆栈信息
         log.error(ThrowableUtil.getStackTrace(e));
         return buildResponseEntity(ApiError.error(BAD_REQUEST.value(), "数据传输错误"));
+    }
+
+    @ExceptionHandler(InternalAuthenticationServiceException.class)
+    public ResponseEntity<ApiError> handleUsernameNotFoundException(InternalAuthenticationServiceException e){
+        // 打印堆栈信息
+        if (e.getMessage().contains("org.springframework.security.core.userdetails.UsernameNotFoundException")) {
+            return buildResponseEntity(ApiError.error(BAD_REQUEST.value(), "用户名或密码错误"));
+        }
+        log.error(ThrowableUtil.getStackTrace(e));
+        return buildResponseEntity(ApiError.error(BAD_REQUEST.value(), "认证错误"));
     }
     /**
      * 统一返回

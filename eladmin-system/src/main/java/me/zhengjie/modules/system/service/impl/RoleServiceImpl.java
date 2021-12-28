@@ -16,12 +16,14 @@
 package me.zhengjie.modules.system.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.RequiredArgsConstructor;
 import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.modules.security.service.UserCacheClean;
 import me.zhengjie.modules.system.domain.Menu;
 import me.zhengjie.modules.system.domain.Role;
 import me.zhengjie.exception.EntityExistException;
+import me.zhengjie.modules.system.domain.RolePath;
 import me.zhengjie.modules.system.domain.User;
 import me.zhengjie.modules.system.repository.RoleRepository;
 import me.zhengjie.modules.system.repository.UserRepository;
@@ -31,6 +33,7 @@ import me.zhengjie.modules.system.service.dto.criteria.RoleQueryCriteria;
 import me.zhengjie.modules.system.service.dto.RoleSmallDto;
 import me.zhengjie.modules.system.service.dto.UserDto;
 import me.zhengjie.modules.system.service.mapstruct.RoleMapper;
+import me.zhengjie.modules.system.service.RolePathService;
 import me.zhengjie.modules.system.service.mapstruct.RoleSmallMapper;
 import me.zhengjie.utils.*;
 import org.springframework.cache.annotation.CacheConfig;
@@ -63,6 +66,7 @@ public class RoleServiceImpl implements RoleService {
     private final RedisUtils redisUtils;
     private final UserRepository userRepository;
     private final UserCacheClean userCacheClean;
+    private final RolePathService rolePathService;
 
     @Override
     public List<RoleDto> queryAll() {
@@ -174,6 +178,9 @@ public class RoleServiceImpl implements RoleService {
                     .collect(Collectors.toList());
         }
         Set<Role> roles = roleRepository.findByUserId(user.getId());
+        final List<Long> collect = roles.stream().map(Role::getId).collect(Collectors.toList());
+        user.setRolePathList(rolePathService.list(new QueryWrapper<RolePath>().in("role_id", collect)));
+
         permissions = roles.stream().flatMap(role -> role.getMenus().stream())
                 .filter(menu -> StringUtils.isNotBlank(menu.getPermission()))
                 .map(Menu::getPermission).collect(Collectors.toSet());

@@ -13,10 +13,7 @@ import me.zhengjie.modules.system.domain.RepairServiceman;
 import me.zhengjie.modules.system.domain.User;
 import me.zhengjie.modules.system.service.LikeOrNotService;
 import me.zhengjie.modules.system.service.RepairServicemanService;
-import me.zhengjie.modules.system.service.dto.RepairApplicationAssignToMeDto;
-import me.zhengjie.modules.system.service.dto.RepairApplicationDetailsDto;
-import me.zhengjie.modules.system.service.dto.RepairStatistics;
-import me.zhengjie.modules.system.service.dto.UserStatistics;
+import me.zhengjie.modules.system.service.dto.*;
 import me.zhengjie.modules.system.service.dto.criteria.RepairApplicationCriteria;
 import me.zhengjie.modules.system.service.mapper.RepairApplicationMapper;
 import me.zhengjie.modules.system.service.RepairApplicationService;
@@ -35,9 +32,7 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.Duration;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -188,7 +183,7 @@ public class RepairApplicationServiceImpl extends CommonServiceImpl<RepairApplic
     }
 
     @Override
-    public List<RepairApplicationAssignToMeDto> findAsassignByMe() {
+    public List<RepairApplicationAssignToMeDto> findAssignByMe() {
         return repairApplicationMapper.findAsassignByMe(SecurityUtils.getCurrentUserId());
     }
 
@@ -206,6 +201,11 @@ public class RepairApplicationServiceImpl extends CommonServiceImpl<RepairApplic
         }
         this.removeByIds(ids);
         return false;
+    }
+
+    @Override
+    public EvaluationStatisticDto getEvaluationStatistics() {
+        return repairApplicationMapper.getEvaluationStatistics();
     }
 
 

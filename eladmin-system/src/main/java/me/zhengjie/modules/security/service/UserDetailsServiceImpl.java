@@ -15,22 +15,28 @@
  */
 package me.zhengjie.modules.security.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.RequiredArgsConstructor;
 import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.exception.EntityNotFoundException;
 import me.zhengjie.modules.security.config.bean.LoginProperties;
 import me.zhengjie.modules.security.service.dto.JwtUserDto;
+import me.zhengjie.modules.system.domain.RolePath;
 import me.zhengjie.modules.system.service.RoleService;
 import me.zhengjie.modules.system.service.UserService;
+import me.zhengjie.modules.system.service.dto.RoleSmallDto;
 import me.zhengjie.modules.system.service.dto.UserDto;
+import me.zhengjie.modules.system.service.RolePathService;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * @author Zheng Jie
@@ -42,6 +48,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserService userService;
     private final RoleService roleService;
     private final LoginProperties loginProperties;
+    private final RolePathService rolePathService;
 
     public void setEnableCache(boolean enableCache) {
         this.loginProperties.setCacheEnable(enableCache);
@@ -101,6 +108,17 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }else{
             try {
                 jwtUserDto=future.get();
+                final UserDto user = jwtUserDto.getUser();
+                if (user.getRolePathList() == null) {
+                    final Set<Long> collect = user
+                            .getRoles()
+                            .stream()
+                            .map(RoleSmallDto::getId)
+                            .collect(Collectors.toSet());
+                    final List<RolePath> list = rolePathService.list(
+                            new QueryWrapper<RolePath>().select("distinct path").in("role_id", collect));
+                    user.setRolePathList(list);
+                }
             }catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e.getMessage());
             }

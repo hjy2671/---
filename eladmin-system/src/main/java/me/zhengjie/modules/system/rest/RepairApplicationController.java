@@ -12,7 +12,6 @@ import me.zhengjie.modules.system.domain.RepairServiceman;
 import me.zhengjie.modules.system.service.RepairApplicationService;
 import me.zhengjie.modules.system.service.dto.RepairApplicationDetailsDto;
 import me.zhengjie.modules.system.service.dto.criteria.RepairApplicationCriteria;
-import me.zhengjie.utils.FileUtil;
 import me.zhengjie.utils.SecurityUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -21,10 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +39,30 @@ public class RepairApplicationController {
     @GetMapping
     public ResponseEntity<PageInfo<RepairApplicationDetailsDto>> queryAll(RepairApplicationCriteria criteria, Pageable pageable){
         return new ResponseEntity<>(repairApplicationService.queryAll(criteria, pageable), HttpStatus.OK);
+    }
+
+    @Log("修改故障报修信")
+    @ApiOperation(value = "修改故障报修信")
+    @PutMapping
+    @PreAuthorize("@el.check('repair:edit')")
+    public ResponseEntity<Boolean> update(@RequestBody RepairApplication resource){
+        return new ResponseEntity<>(repairApplicationService.updateById(resource), HttpStatus.OK);
+    }
+
+    @Log("新增故障报修信")
+    @ApiOperation(value = "新增故障报修信")
+    @PostMapping
+    @PreAuthorize("@el.check('repair:add')")
+    public ResponseEntity<Boolean> add(@RequestBody RepairApplication resource){
+        return new ResponseEntity<>(repairApplicationService.save(resource), HttpStatus.OK);
+    }
+
+    @Log("删除故障报修信")
+    @ApiOperation(value = "删除故障报修信")
+    @DeleteMapping
+    @PreAuthorize("@el.check('repair:del')")
+    public ResponseEntity<Boolean> delete(@RequestBody Set<String> ids){
+        return new ResponseEntity<>(repairApplicationService.deleteAll(ids), HttpStatus.OK);
     }
 
     @Log("查询由我提供的故障报修信息列表")
@@ -66,29 +86,13 @@ public class RepairApplicationController {
         return new ResponseEntity<>(repairApplicationService.getRepairStatistics(), HttpStatus.OK);
     }
 
-    @Log("修改故障报修信")
-    @ApiOperation(value = "修改故障报修信")
-    @PutMapping
-    @PreAuthorize("@el.check('repair:edit')")
-    public ResponseEntity<Boolean> update(RepairApplication resource){
-        return new ResponseEntity<>(repairApplicationService.updateById(resource), HttpStatus.OK);
+    @Log("报修评价信息统计")
+    @ApiOperation(value = "报修评价信息统计")
+    @GetMapping("/evaluationStatistics")
+    public ResponseEntity<Object> getEvaluationStatistics(){
+        return new ResponseEntity<>(repairApplicationService.getEvaluationStatistics(), HttpStatus.OK);
     }
 
-    @Log("新增故障报修信")
-    @ApiOperation(value = "新增故障报修信")
-    @PostMapping
-    @PreAuthorize("@el.check('repair:add')")
-    public ResponseEntity<Boolean> add(RepairApplication resource){
-        return new ResponseEntity<>(repairApplicationService.save(resource), HttpStatus.OK);
-    }
-
-    @Log("删除故障报修信")
-    @ApiOperation(value = "删除故障报修信")
-    @DeleteMapping
-    @PreAuthorize("@el.check('repair:del')")
-    public ResponseEntity<Boolean> delete(@RequestBody Set<String> ids){
-        return new ResponseEntity<>(repairApplicationService.deleteAll(ids), HttpStatus.OK);
-    }
 
     @Log("点赞或点踩")
     @ApiOperation(value = "点赞或点踩")
@@ -111,10 +115,11 @@ public class RepairApplicationController {
     @Log("设置评价")
     @ApiOperation(value = "设置评价")
     @GetMapping("/setEvaluation")
-    public ResponseEntity<Boolean> setEvaluation(String repairId, String grade){
+    public ResponseEntity<Boolean> setEvaluation(String repairId, String grade, String comment){
         final RepairApplication application = new RepairApplication();
         application.setId(repairId);
-        application.setGrade(grade);
+        application.setGrade(grade.replaceAll(" ", ""));
+        application.setEvaluation(comment);
         return new ResponseEntity<>(repairApplicationService.updateById(application), HttpStatus.OK);
     }
 
@@ -129,7 +134,7 @@ public class RepairApplicationController {
     @ApiOperation(value = "查询由我指派的任务")
     @GetMapping("/assignByMe")
     public ResponseEntity<Object> findAssignByMe(){
-        return new ResponseEntity<>(repairApplicationService.findAsassignByMe(), HttpStatus.OK);
+        return new ResponseEntity<>(repairApplicationService.findAssignByMe(), HttpStatus.OK);
     }
 
     @Log("上传图片")
@@ -137,10 +142,6 @@ public class RepairApplicationController {
     @PostMapping("/upload")
     @AnonymousAccess
     public ResponseEntity<Object> upload(@RequestParam("files") MultipartFile[] files) throws IOException {
-
-        final List<File> list = FileUtil.saveFiles(Arrays.asList(files), "E:/Temp/picture/");
-        final String path = list.get(0).getPath();
-
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

@@ -77,14 +77,30 @@
     </select>
     <select id="findUserByRole" resultType="me.zhengjie.modules.system.service.dto.SimpleUserDto">
         SELECT
-            u.user_id,
-            u.nick_name
+        u.user_id,
+        u.nick_name,
+        s1.pendingNum,
+        s2.doingNum
         FROM
-            sys_user u
-                LEFT JOIN sys_users_roles ur ON ur.user_id = u.user_id
-                LEFT JOIN sys_role r ON r.role_id = ur.role_id
+        sys_user u
+        LEFT JOIN sys_users_roles ur ON ur.user_id = u.user_id
+        LEFT JOIN ( SELECT serviceman_id AS 'id', count(*) AS 'pendingNum' FROM sys_repair_serviceman WHERE `status` = '0' GROUP BY serviceman_id ) s1 ON s1.id = u.user_id
+        LEFT JOIN (
+        SELECT
+        rs.serviceman_id AS 'id',
+        count(*) AS 'doingNum'
+        FROM
+        sys_repair_serviceman rs
+        LEFT JOIN sys_repair_application ra ON ra.id = rs.repair_id
         WHERE
-            r.NAME = #{role}
+        ra.`status` &lt;&gt; '3'
+        AND rs.`status` = '1'
+        GROUP BY
+        id
+        ) s2 ON u.user_id = s2.id
+        WHERE
+        ur.role_id = #{role}
+        order by s2.doingNum, s1.pendingNum
     </select>
 
 </mapper>

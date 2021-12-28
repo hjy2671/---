@@ -6,10 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import me.zhengjie.base.CommonMapper;
 import me.zhengjie.base.PageInfo;
 import me.zhengjie.modules.system.domain.RepairApplication;
-import me.zhengjie.modules.system.service.dto.RepairApplicationAssignToMeDto;
-import me.zhengjie.modules.system.service.dto.RepairApplicationDetailsDto;
-import me.zhengjie.modules.system.service.dto.RepairStatistics;
-import me.zhengjie.modules.system.service.dto.UserStatistics;
+import me.zhengjie.modules.system.service.dto.*;
 import me.zhengjie.modules.system.service.dto.criteria.RepairApplicationCriteria;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +39,9 @@ public interface RepairApplicationMapper extends CommonMapper<RepairApplication>
      * @return List<RepairApplicationAssignToMeDto>
      */
     List<RepairApplicationAssignToMeDto> findAsassignByMe(Long userId);
+
+    EvaluationStatisticDto getEvaluationStatistics();
+
 
 
 }

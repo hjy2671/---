@@ -5,10 +5,7 @@ import me.zhengjie.base.PageInfo;
 import me.zhengjie.modules.system.domain.RepairApplication;
 import me.zhengjie.modules.system.domain.RepairServiceman;
 import me.zhengjie.modules.system.domain.User;
-import me.zhengjie.modules.system.service.dto.RepairApplicationAssignToMeDto;
-import me.zhengjie.modules.system.service.dto.RepairApplicationDetailsDto;
-import me.zhengjie.modules.system.service.dto.RepairStatistics;
-import me.zhengjie.modules.system.service.dto.UserStatistics;
+import me.zhengjie.modules.system.service.dto.*;
 import me.zhengjie.modules.system.service.dto.criteria.RepairApplicationCriteria;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -55,8 +52,10 @@ public interface RepairApplicationService extends CommonService<RepairApplicatio
      * 查询由我指派的
      * @return List<RepairApplicationAssignToMeDto>
      */
-    List<RepairApplicationAssignToMeDto> findAsassignByMe();
+    List<RepairApplicationAssignToMeDto> findAssignByMe();
 
     boolean deleteAll(Set<String> ids);
+
+    EvaluationStatisticDto getEvaluationStatistics();
 
 }

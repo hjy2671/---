@@ -64,7 +64,7 @@ public class RepairApplicationDetailsDto {
     private Long notLikes;
 
     @ApiModelProperty(value = "星级")
-    private Long grade;
+    private String grade = "0";
 
     @ApiModelProperty(value = "提供人员id")
     private Long providerId;
@@ -80,6 +80,9 @@ public class RepairApplicationDetailsDto {
 
     @ApiModelProperty(value = "接受状态")
     private String acceptStatus;
+
+    @ApiModelProperty(value = "评价")
+    private String evaluation = "";
 
     public void setEmergencyDegree(String emergencyDegree) {
         this.emergencyDegree = emergencyDegree;

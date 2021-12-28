@@ -7,6 +7,10 @@ public class SimpleUserDto {
 
     private Long userId;
 
-    private String nickname;
+    private String nickname = "";
+
+    private Integer doingNum = 0;
+
+    private Integer pendingNum = 0;
 
 }

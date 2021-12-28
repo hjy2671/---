@@ -25,6 +25,9 @@ public class RepairApplicationAssignToMeDto {
     @ApiModelProperty(value = "故障位置")
     private String faultLocation;
 
+    @ApiModelProperty(value = "拒绝原因")
+    private String refuseReason;
+
     @ApiModelProperty(value = "图片")
     private String picture;
 
