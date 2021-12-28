@@ -48,5 +48,5 @@
 - 12.点击头像可进入后台页面，角色权限不足的则无法进入，也不会显示此按钮
 
 #### 图片预览
-<img src="https://gitee.com/hjy267/project/blob/master/picture/find.png"  alt="" width="500" height="300"/>
+
 ![image](https://gitee.com/hjy267/project/blob/master/picture/find.png)
