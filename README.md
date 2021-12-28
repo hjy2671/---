@@ -54,4 +54,6 @@
 
 #### 图片预览
 
-https://gitee.com/hjy267/project/tree/master/前往gitee查看
+https://gitee.com/hjy267/project/tree/master/
+
+前往gitee查看
