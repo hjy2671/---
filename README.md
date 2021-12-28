@@ -49,4 +49,14 @@
 
 #### 图片预览
 
-![image](https://gitee.com/hjy267/project/blob/master/picture/find.png)
+![image](picture/login.png)
+
+![image](picture/find.png)
+
+![image](picture/register.png)
+
+![image](picture/homepage.png)
+
+![image](picture/info.png)
+
+![image](picture/provide.png)
