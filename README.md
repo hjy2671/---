@@ -54,14 +54,4 @@
 
 #### 图片预览
 
-![image](https://raw.githubusercontent.com/hjy2671/---/master/picture/find.png)
-
-![image](picture/find.png)
-
-![image](picture/register.png)
-
-![image](picture/homepage.png)
-
-![image](picture/info.png)
-
-![image](picture/provide.png)
+https://gitee.com/hjy267/project/tree/master/前往gitee查看
