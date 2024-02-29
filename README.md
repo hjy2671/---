@@ -54,14 +54,6 @@
 
 #### 图片预览
 
-![image](picture/login.png)
+https://gitee.com/hjy267/project/tree/master/
 
-![image](picture/find.png)
-
-![image](picture/register.png)
-
-![image](picture/homepage.png)
-
-![image](picture/info.png)
-
-![image](picture/provide.png)
+前往gitee查看
