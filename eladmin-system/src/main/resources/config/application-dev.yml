@@ -4,9 +4,9 @@ spring:
     druid:
       db-type: com.alibaba.druid.pool.DruidDataSource
       driverClassName: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-      url: jdbc:log4jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:repair}?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false
+      url: jdbc:log4jdbc:mysql://${DB_HOST:124.71.131.27}:${DB_PORT:3306}/${DB_NAME:repair}?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false
       username: ${DB_USER:root}
-      password: ${DB_PWD:root}
+      password: ${DB_PWD:hjy@26.71}
       # 初始连接数
       initial-size: 5
       # 最小连接数
@@ -104,11 +104,11 @@ ip:
 
 # sms服务
 sms:
-  accessKeyId: #
-  accessKeySecret: #
-  signName: #
-  templateCode: SMS_206561186
-  domain: dysmsapi.aliyuncs.com
+  accessKeyId: qqq
+  accessKeySecret: qqq
+  signName: qqq
+  templateCode: qqq
+  domain: qqq
 
 # 文件存储路径
 file:

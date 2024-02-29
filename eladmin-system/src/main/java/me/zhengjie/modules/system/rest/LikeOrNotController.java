@@ -3,6 +3,7 @@ package me.zhengjie.modules.system.rest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import me.zhengjie.annotation.AnonymousAccess;
 import me.zhengjie.annotation.Log;
 import me.zhengjie.base.PageInfo;
 import me.zhengjie.modules.system.domain.LikeOrNot;
@@ -27,6 +28,7 @@ public class LikeOrNotController {
 
     private final LikeOrNotService likeOrNotService;
 
+    @AnonymousAccess
     @Log("查询点赞信息")
     @ApiOperation(value = "查询点赞信息列表")
     @GetMapping
