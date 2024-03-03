@@ -15,7 +15,10 @@
  */
 package me.zhengjie.config;
 
+import lombok.Data;
 import me.zhengjie.utils.SecurityUtils;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Component;
 import java.util.Optional;
@@ -25,6 +28,7 @@ import java.util.Optional;
  * @author  : Dong ZhaoYang
  * @date : 2019/10/28
  */
+@Data
 @Component("auditorAware")
 public class AuditorConfig implements AuditorAware<String> {
 

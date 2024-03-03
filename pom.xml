@@ -37,9 +37,22 @@
         <commons-pool2.version>2.5.0</commons-pool2.version>
         <mapstruct.version>1.3.1.Final</mapstruct.version>
         <mybatis-plus.version>3.4.3.1</mybatis-plus.version>
+        <minio.version>8.4.3</minio.version>
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>${minio.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>4.9.0</version>
+        </dependency>
 
         <!--Spring boot 核心-->
         <dependency>

@@ -7,12 +7,16 @@ import lombok.RequiredArgsConstructor;
 import me.zhengjie.annotation.AnonymousAccess;
 import me.zhengjie.annotation.Log;
 import me.zhengjie.base.PageInfo;
+import me.zhengjie.config.AuditorConfig;
+import me.zhengjie.config.MinioProperties;
 import me.zhengjie.modules.system.domain.RepairApplication;
 import me.zhengjie.modules.system.domain.RepairServiceman;
+import me.zhengjie.modules.system.service.FileService;
 import me.zhengjie.modules.system.service.RepairApplicationService;
 import me.zhengjie.modules.system.service.dto.RepairApplicationDetailsDto;
 import me.zhengjie.modules.system.service.dto.criteria.RepairApplicationCriteria;
 import me.zhengjie.utils.SecurityUtils;
+import me.zhengjie.utils.SpringContextHolder;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +37,15 @@ import java.util.Set;
 public class RepairApplicationController {
 
     private final RepairApplicationService repairApplicationService;
+    private final FileService fileService;
+
+
+    @PostMapping("/t")
+    @AnonymousAccess
+    public void queryAll(@RequestParam("file") MultipartFile file){
+        fileService.upload(file);
+    }
+
 
     @Log("查询故障报修信息列表")
     @ApiOperation(value = "查询故障报修信息列表")
