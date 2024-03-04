@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * @author hjy
@@ -45,19 +47,25 @@ public class Minio {
         return client;
     }
 
-    public static void upload(InputStream is, FileInfo info) {
+    public static FileInfo upload(InputStream is, String originalName, String contentType, Function<String, String> nameHandler) {
+        String filename = nameHandler.apply(originalName);
         try {
             instance().putObject(
                     PutObjectArgs.builder()
                             .bucket(config.bucket)
                             .stream(is, -1, config.maxSize)
-                            .object(info.getFilename()).contentType(getContentType(info.getType()))
+                            .object(filename)
+                            .contentType(contentType)
                             .build()
             );
         } catch (Exception e) {
             throw new MinioException(e.getMessage());
         }
-        info.setUrl(url(info.getFilename()));
+        return FileInfo.builder()
+                .originalName(originalName)
+                .filename(filename)
+                .type(fileType(filename))
+                .url(url(filename)).build();
     }
 
     public static Map<String, String> uploadFiles(List<SnowballObject> list)  throws Exception {
@@ -98,6 +106,10 @@ public class Minio {
             case ".gif": return "image/gif";
             default: return "application/octet-stream";
         }
+    }
+
+    private static String fileType(String originalName) {
+        return originalName.substring(originalName.lastIndexOf("."));
     }
 
 }

@@ -1,14 +1,19 @@
 package me.zhengjie.modules.system.service.impl;
 
+import io.minio.SnowballObject;
 import me.zhengjie.base.FileInfo;
 import me.zhengjie.modules.system.service.FileService;
 import me.zhengjie.utils.Minio;
 import me.zhengjie.utils.SecurityUtils;
+import org.apache.hc.core5.util.Asserts;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -22,23 +27,22 @@ public class FileServiceImpl implements FileService {
     @Override
     public boolean upload(MultipartFile file, String path) {
 
-        String originalName = file.getOriginalFilename();
-
         try {
-            FileInfo fileInfo = new FileInfo();
-            String type = fileType(originalName);
-
-            fileInfo.setFilename(newFilename(originalName, type));
-            fileInfo.setType(type);
-            fileInfo.setOriginalName(originalName);
-
-            Minio.upload(file.getInputStream(), fileInfo);
-
-            System.out.println("保存信息");
-
+            Minio.upload(
+                    file.getInputStream(),
+                    file.getOriginalFilename(),
+                    file.getContentType(),
+                    name -> newFilename("/path", fileType(name))
+            );
         } catch (IOException e) {
             throw new RuntimeException("上传文件失败:" + e.getMessage());
         }
+
+        return true;
+    }
+
+    public boolean upload(MultipartFile[] files, String path) {
+
 
         return true;
     }

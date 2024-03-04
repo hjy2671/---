@@ -11,6 +11,7 @@ import java.util.UUID;
  * @date 2024/3/3 21:04
  */
 @Data
+@Builder
 public class FileInfo {
 
     private String filename;//处理过后的名字，包括存储路径什么的
