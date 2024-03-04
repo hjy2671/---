@@ -2,6 +2,7 @@ package me.zhengjie.utils;
 
 import io.minio.*;
 import io.minio.errors.*;
+import me.zhengjie.base.FileInfo;
 import me.zhengjie.config.MinioProperties;
 import me.zhengjie.exception.MinioException;
 
@@ -12,6 +13,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author hjy
@@ -43,19 +45,19 @@ public class Minio {
         return client;
     }
 
-    public static String upload(InputStream is, String filename) {
+    public static void upload(InputStream is, FileInfo info) {
         try {
             instance().putObject(
                     PutObjectArgs.builder()
                             .bucket(config.bucket)
                             .stream(is, -1, config.maxSize)
-                            .object(filename).contentType("image/jpeg")
+                            .object(info.getFilename()).contentType(getContentType(info.getType()))
                             .build()
             );
         } catch (Exception e) {
             throw new MinioException(e.getMessage());
         }
-        return url(filename);
+        info.setUrl(url(info.getFilename()));
     }
 
     public static Map<String, String> uploadFiles(List<SnowballObject> list)  throws Exception {
@@ -88,4 +90,14 @@ public class Minio {
     private static String url(String filename) {
         return config.endpoint + "/" + config.bucket + "/" + filename;
     }
+
+    private static String getContentType(String suffix) {
+        switch (suffix) {
+            case ".jpg": return "image/jpeg";
+            case ".png": return "image/png";
+            case ".gif": return "image/gif";
+            default: return "application/octet-stream";
+        }
+    }
+
 }
