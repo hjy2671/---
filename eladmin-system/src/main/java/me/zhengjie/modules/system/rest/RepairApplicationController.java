@@ -7,8 +7,6 @@ import lombok.RequiredArgsConstructor;
 import me.zhengjie.annotation.AnonymousAccess;
 import me.zhengjie.annotation.Log;
 import me.zhengjie.base.PageInfo;
-import me.zhengjie.config.AuditorConfig;
-import me.zhengjie.config.MinioProperties;
 import me.zhengjie.modules.system.domain.RepairApplication;
 import me.zhengjie.modules.system.domain.RepairServiceman;
 import me.zhengjie.modules.system.service.FileService;
@@ -16,7 +14,6 @@ import me.zhengjie.modules.system.service.RepairApplicationService;
 import me.zhengjie.modules.system.service.dto.RepairApplicationDetailsDto;
 import me.zhengjie.modules.system.service.dto.criteria.RepairApplicationCriteria;
 import me.zhengjie.utils.SecurityUtils;
-import me.zhengjie.utils.SpringContextHolder;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,8 +39,14 @@ public class RepairApplicationController {
 
     @PostMapping("/t")
     @AnonymousAccess
-    public void queryAll(@RequestParam("file") MultipartFile file){
-        fileService.upload(file);
+    public void queryAll(@RequestParam("file") MultipartFile file, String path){
+        fileService.upload(file, path);
+    }
+
+    @PostMapping("/s")
+    @AnonymousAccess
+    public void queryAll(MultipartFile[] files, String path){
+        fileService.upload(files, path);
     }
 
 

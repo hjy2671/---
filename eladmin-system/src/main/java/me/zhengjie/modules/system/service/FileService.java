@@ -10,4 +10,6 @@ public interface FileService {
 
     boolean upload(MultipartFile file, String path);
 
+    boolean upload(MultipartFile[] files, String path);
+
 }

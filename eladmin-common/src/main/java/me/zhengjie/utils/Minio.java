@@ -5,15 +5,13 @@ import io.minio.errors.*;
 import me.zhengjie.base.FileInfo;
 import me.zhengjie.config.MinioProperties;
 import me.zhengjie.exception.MinioException;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -47,35 +45,50 @@ public class Minio {
         return client;
     }
 
-    public static FileInfo upload(InputStream is, String originalName, String contentType, Function<String, String> nameHandler) {
-        String filename = nameHandler.apply(originalName);
+    public static FileInfo upload(MultipartFile file, Function<String, String> nameHandler) {
+        String filename = nameHandler.apply(file.getOriginalFilename());
         try {
             instance().putObject(
                     PutObjectArgs.builder()
                             .bucket(config.bucket)
-                            .stream(is, -1, config.maxSize)
+                            .stream(file.getInputStream(), -1, config.maxSize)
                             .object(filename)
-                            .contentType(contentType)
+                            .contentType(file.getContentType())
                             .build()
             );
         } catch (Exception e) {
             throw new MinioException(e.getMessage());
         }
         return FileInfo.builder()
-                .originalName(originalName)
+                .originalName(file.getOriginalFilename())
                 .filename(filename)
-                .type(fileType(filename))
                 .url(url(filename)).build();
     }
 
-    public static Map<String, String> uploadFiles(List<SnowballObject> list)  throws Exception {
+    public static List<FileInfo> uploadFiles(MultipartFile[] files, Function<String, String> nameHandler)  throws Exception {
+
+        List<SnowballObject> snowballObjects = new LinkedList<>();
+        List<FileInfo> fileInfos = new LinkedList<>();
+
+        for (MultipartFile file : files) {
+            String newName = nameHandler.apply(file.getOriginalFilename());
+            snowballObjects.add(new SnowballObject(newName, file.getInputStream(), file.getSize(), null));
+            fileInfos.add(
+                    FileInfo.builder()
+                    .originalName(file.getOriginalFilename())
+                    .filename(newName)
+                    .url(url(newName))
+                    .build()
+            );
+        }
+
         instance().uploadSnowballObjects(
                 UploadSnowballObjectsArgs.builder()
                         .bucket(config.bucket)
-                        .objects(list)
+                        .objects(snowballObjects)
                         .build()
         );
-        return url(list);
+        return fileInfos;
     }
 
     public static GetObjectResponse download(String filename) {
@@ -86,26 +99,9 @@ public class Minio {
         }
     }
 
-    private static Map<String, String> url(List<SnowballObject> list) {
-        HashMap<String, String> map = new HashMap<>();
-        list.forEach(o -> {
-            String filename = o.name();
-            map.put(filename, url(filename));
-        });
-        return map;
-    }
 
     private static String url(String filename) {
         return config.endpoint + "/" + config.bucket + "/" + filename;
-    }
-
-    private static String getContentType(String suffix) {
-        switch (suffix) {
-            case ".jpg": return "image/jpeg";
-            case ".png": return "image/png";
-            case ".gif": return "image/gif";
-            default: return "application/octet-stream";
-        }
     }
 
     private static String fileType(String originalName) {

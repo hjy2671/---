@@ -20,9 +20,5 @@ public class FileInfo {
 
     private String url;//文件的类型
 
-    private String type;
-
-
-
 
 }
