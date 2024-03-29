@@ -34,7 +34,7 @@ public interface RepairApplicationService extends CommonService<RepairApplicatio
      * @param resource RepairApplication
      * @return List<RepairApplication>
      */
-    List<RepairApplication> commit(List<MultipartFile> files, RepairApplication resource);
+    boolean commit(MultipartFile[] files, RepairApplication resource);
 
     boolean revoke(String repairId);
 

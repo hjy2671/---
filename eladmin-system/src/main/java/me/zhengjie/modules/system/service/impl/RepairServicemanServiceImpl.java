@@ -65,7 +65,7 @@ public class RepairServicemanServiceImpl extends CommonServiceImpl<RepairService
             updateById(new RepairServiceman(){{setId(resource.getId());setStatus(RepairServicemanStatusEnum.val2.getCode());}});
 
             // 设置状态为处理中
-            repairApplicationService.updateById(new RepairApplication(){{setStartTime(new Date());setId(resource.getRepairId());setStatus(RepairApplicationStatusEnum.val3.getCode());}});
+            repairApplicationService.updateById(new RepairApplication(){{setStartTime(new Date());setId(resource.getRepairId());setStatus(RepairApplicationStatusEnum.PROCESSING.getCode());}});
 
             // 设置用户状态
             userService.updateStatus(SecurityUtils.getCurrentUsername(), UserStatusEnum.val2.getCode());
@@ -84,7 +84,7 @@ public class RepairServicemanServiceImpl extends CommonServiceImpl<RepairService
             updateById(new RepairServiceman(){{setRefuseReason(resource.getRefuseReason());setId(resource.getId());setStatus(RepairServicemanStatusEnum.val3.getCode());}});
 
             // 设置状态为待处理
-            repairApplicationService.updateById(new RepairApplication(){{setId(resource.getRepairId());setStatus(RepairApplicationStatusEnum.val1.getCode());}});
+            repairApplicationService.updateById(new RepairApplication(){{setId(resource.getRepairId());setStatus(RepairApplicationStatusEnum.BE_REVIEWED.getCode());}});
         }catch (Exception e){
             throw new RuntimeException("拒绝任务失败，请刷新页面");
         }
@@ -96,7 +96,7 @@ public class RepairServicemanServiceImpl extends CommonServiceImpl<RepairService
     public boolean finish(RepairServiceman resource) {
         try {
             // 设置状态为待处理
-            repairApplicationService.updateById(new RepairApplication(){{setFinishTime(new Date());setId(resource.getRepairId());setStatus(RepairApplicationStatusEnum.val4.getCode());}});
+            repairApplicationService.updateById(new RepairApplication(){{setFinishTime(new Date());setId(resource.getRepairId());setStatus(RepairApplicationStatusEnum.BE_REVIEWED.getCode());}});
         }catch (Exception e){
             throw new RuntimeException("完成任务失败，请刷新页面");
         }

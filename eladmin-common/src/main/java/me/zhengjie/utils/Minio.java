@@ -62,11 +62,12 @@ public class Minio {
         return FileInfo.builder()
                 .originalName(file.getOriginalFilename())
                 .filename(filename)
+                .createTime(new Date())
                 .url(url(filename)).build();
     }
 
-    public static List<FileInfo> uploadFiles(MultipartFile[] files, Function<String, String> nameHandler)  throws Exception {
-
+    public static List<FileInfo> uploadFiles(MultipartFile[] files, Function<String, String> nameHandler) throws Exception {
+        MinioClient instance = instance();
         List<SnowballObject> snowballObjects = new LinkedList<>();
         List<FileInfo> fileInfos = new LinkedList<>();
 
@@ -75,14 +76,15 @@ public class Minio {
             snowballObjects.add(new SnowballObject(newName, file.getInputStream(), file.getSize(), null));
             fileInfos.add(
                     FileInfo.builder()
-                    .originalName(file.getOriginalFilename())
-                    .filename(newName)
-                    .url(url(newName))
-                    .build()
+                            .originalName(file.getOriginalFilename())
+                            .filename(newName)
+                            .url(url(newName))
+                            .createTime(new Date())
+                            .build()
             );
         }
 
-        instance().uploadSnowballObjects(
+        instance.uploadSnowballObjects(
                 UploadSnowballObjectsArgs.builder()
                         .bucket(config.bucket)
                         .objects(snowballObjects)

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface RepairApplicationMapper extends CommonMapper<RepairApplication> {
+public interface RepairApplicationMapper extends CommonMapper<RepairApplicationMapper, RepairApplication> {
 
     /**
      * 查询故障信息

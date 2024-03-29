@@ -5,7 +5,7 @@ import me.zhengjie.modules.system.domain.LikeOrNot;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface LikeOrNotMapper extends CommonMapper<LikeOrNot> {
+public interface LikeOrNotMapper extends CommonMapper<LikeOrNotMapper, LikeOrNot> {
 
 
 }

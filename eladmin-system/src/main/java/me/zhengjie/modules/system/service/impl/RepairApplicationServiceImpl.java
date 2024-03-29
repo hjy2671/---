@@ -3,23 +3,24 @@ package me.zhengjie.modules.system.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.AllArgsConstructor;
+import me.zhengjie.base.FileInfo;
 import me.zhengjie.base.PageInfo;
 import me.zhengjie.base.QueryHelpMybatisPlus;
 import me.zhengjie.base.impl.CommonServiceImpl;
 import me.zhengjie.config.FileProperties;
-import me.zhengjie.modules.system.domain.LikeOrNot;
-import me.zhengjie.modules.system.domain.RepairApplication;
-import me.zhengjie.modules.system.domain.RepairServiceman;
-import me.zhengjie.modules.system.domain.User;
+import me.zhengjie.modules.system.domain.*;
+import me.zhengjie.modules.system.service.FileService;
 import me.zhengjie.modules.system.service.LikeOrNotService;
 import me.zhengjie.modules.system.service.RepairServicemanService;
 import me.zhengjie.modules.system.service.dto.*;
 import me.zhengjie.modules.system.service.dto.criteria.RepairApplicationCriteria;
+import me.zhengjie.modules.system.service.mapper.RepairAndOssMapper;
 import me.zhengjie.modules.system.service.mapper.RepairApplicationMapper;
 import me.zhengjie.modules.system.service.RepairApplicationService;
 import me.zhengjie.modules.system.service.mapper.RepairServicemanMapper;
 import me.zhengjie.utils.*;
 import me.zhengjie.utils.enums.LikeOrNotTypeEnum;
+import me.zhengjie.utils.enums.RepairAndOssEnum;
 import me.zhengjie.utils.enums.RepairApplicationStatusEnum;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
@@ -46,6 +47,8 @@ public class RepairApplicationServiceImpl extends CommonServiceImpl<RepairApplic
     private final RedisUtils redisUtils;
     private final RepairServicemanService repairServicemanService;
     private final FileProperties properties;
+    private final FileService fileService;
+    private final RepairAndOssMapper repairAndOssMapper;
 
     @Override
     public PageInfo<RepairApplicationDetailsDto> queryAll(RepairApplicationCriteria criteria, Pageable pageable) {
@@ -112,37 +115,30 @@ public class RepairApplicationServiceImpl extends CommonServiceImpl<RepairApplic
         return likeOrNot;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public List<RepairApplication> commit(List<MultipartFile> files, RepairApplication resource) {
+    public boolean commit(MultipartFile[] files, RepairApplication resource) {
 
-        if (resource.isNull()){
-            throw new RuntimeException("信息填写有误");
+        resource.setStatus(RepairApplicationStatusEnum.BE_REVIEWED.code);
+
+        if (repairApplicationMapper.insert(resource) == 0) {
+            return false;
+        }
+        List<FileInfo> fileInfos = fileService.upload(files, "repair-application");
+
+        List<RepairAndOss> list = fileInfos.stream().map(f -> {
+            RepairAndOss repairAndOss = new RepairAndOss();
+            repairAndOss.setRepairApplicationId(resource.getId());
+            repairAndOss.setOssId(f.getOssId());
+            repairAndOss.setType(RepairAndOssEnum.SCENE.code);
+            return repairAndOss;
+        }).collect(Collectors.toList());
+
+        if (repairAndOssMapper.insertBatch(list)) {
+            return true;
         }
 
-        final List<RepairApplication> similar;
-        String key = resource.getFaultLocation() + SecurityUtils.getCurrentUsername() + "_SIMILAR_COMMIT";
-
-        if (redisUtils.get(key) == null && (similar = getSimilar(resource)).size() > 0){
-            redisUtils.set(key, "1", Duration.ofMinutes(5).toMillis());
-            return similar;
-        }else {
-            final String path = properties.getPath().getPath().replace("\\", "/");
-            StringBuilder builder = new StringBuilder();
-            if (files.size() > 0){
-                List<File> list = FileUtil.saveFiles(files, path);
-                list.forEach(f -> builder.append(subPath(f.getAbsolutePath().replace("\\", "/"))).append(" "));
-            }
-            resource.setPicture(builder.toString());
-            resource.setProviderId(SecurityUtils.getCurrentUserId());
-            resource.setFoundTime(new Date());
-            save(resource);
-            redisUtils.expire(key, Duration.ofMillis(1).toMillis());
-        }
-        return null;
-    }
-
-    private String subPath(String path){
-        return path.substring(path.indexOf("/picture"));
+        throw new RuntimeException("报修失败");
     }
 
     public List<RepairApplication> getSimilar(RepairApplication target){
@@ -154,7 +150,7 @@ public class RepairApplicationServiceImpl extends CommonServiceImpl<RepairApplic
 
     @Override
     public boolean revoke(String repairId) {
-        return remove(new QueryWrapper<RepairApplication>().eq("status", RepairApplicationStatusEnum.val1.getCode()).eq("repair_id", repairId));
+        return remove(new QueryWrapper<RepairApplication>().eq("status", RepairApplicationStatusEnum.BE_REVIEWED.getCode()).eq("repair_id", repairId));
     }
 
     @Transactional
@@ -162,7 +158,6 @@ public class RepairApplicationServiceImpl extends CommonServiceImpl<RepairApplic
     public boolean assign(RepairServiceman resource) {
         final RepairApplication application = new RepairApplication();
         application.setId(resource.getRepairId());
-        application.setStatus(RepairApplicationStatusEnum.val2.getCode());
         updateById(application);
         resource.setAppointerId(SecurityUtils.getCurrentUserId());
         return repairServicemanService.save(resource);
@@ -196,9 +191,7 @@ public class RepairApplicationServiceImpl extends CommonServiceImpl<RepairApplic
         String path = properties.getPath().getPath().replace("\\", "/");
         path = path.substring(0, path.indexOf("/picture") + 1);
         for (RepairApplication application : list) {
-            for (String p : application.getPicture().split(" ")) {
-                FileUtil.del(new File(path + p));
-            }
+            //删除文件
         }
         this.removeByIds(ids);
         return false;

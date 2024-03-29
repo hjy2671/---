@@ -134,8 +134,6 @@ public class RepairApplicationController {
     public ResponseEntity<Boolean> setEvaluation(String repairId, String grade, String comment){
         final RepairApplication application = new RepairApplication();
         application.setId(repairId);
-        application.setGrade(grade.replaceAll(" ", ""));
-        application.setEvaluation(comment);
         return new ResponseEntity<>(repairApplicationService.updateById(application), HttpStatus.OK);
     }
 
@@ -165,6 +163,6 @@ public class RepairApplicationController {
     @ApiOperation(value = "提交故障报修信")
     @PostMapping("/commit")
     public ResponseEntity<Object> commit(@RequestParam("files") MultipartFile[] files, RepairApplication info){
-        return new ResponseEntity<>(repairApplicationService.commit(Arrays.asList(files), info), HttpStatus.OK);
+        return new ResponseEntity<>(repairApplicationService.commit(files, info), HttpStatus.OK);
     }
 }

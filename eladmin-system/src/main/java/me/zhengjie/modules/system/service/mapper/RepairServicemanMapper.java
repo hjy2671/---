@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface RepairServicemanMapper extends CommonMapper<RepairServiceman> {
+public interface RepairServicemanMapper extends CommonMapper<RepairServicemanMapper, RepairServiceman> {
 
     ServiceManTaskStatistics statisticsTask(Long userId);
 

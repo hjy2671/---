@@ -7,14 +7,14 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum RepairApplicationStatusEnum {
 
-    val1("0", "待处理"),
-    val2("1", "已指派"),
-    val3("2", "处理中"),
-    val4("3", "已完成"),
-    other("", "其他");
-
-    private String code;
-    private String desc;
+    REFUSE("0", "审核拒绝"),
+    BE_REVIEWED("1", "待审核"),
+    PUBLISHED("2", "已公布"),
+    ASSIGNED("3", "已指派"),
+    PROCESSING("4", "处理中"),
+    DONE("5", "已完成");
+    public final String code;
+    public final String desc;
 
     public static RepairApplicationStatusEnum find(String code){
         for (RepairApplicationStatusEnum value : RepairApplicationStatusEnum.values()) {
@@ -22,7 +22,7 @@ public enum RepairApplicationStatusEnum {
                 return value;
             }
         }
-        return other;
+        throw new RuntimeException("no status:" + code);
     }
 
 }

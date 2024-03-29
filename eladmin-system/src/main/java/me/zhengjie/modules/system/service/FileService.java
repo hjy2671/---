@@ -1,6 +1,9 @@
 package me.zhengjie.modules.system.service;
 
+import me.zhengjie.base.FileInfo;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * @author hjy
@@ -8,8 +11,8 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface FileService {
 
-    boolean upload(MultipartFile file, String path);
+    FileInfo upload(MultipartFile file, String path);
 
-    boolean upload(MultipartFile[] files, String path);
+    List<FileInfo> upload(MultipartFile[] files, String path);
 
 }
