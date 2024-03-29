@@ -85,7 +85,6 @@ public class RepairApplicationServiceImpl extends CommonServiceImpl<RepairApplic
 
     @Override
     public void like(String repairId, String type) {
-
         final Long userId = SecurityUtils.getCurrentUserId();
 
         final LikeOrNot like = likeOrNotService.getOne(new QueryWrapper<LikeOrNot>()
@@ -190,7 +189,9 @@ public class RepairApplicationServiceImpl extends CommonServiceImpl<RepairApplic
     @Override
     public boolean deleteAll(Set<String> ids) {
 
-        final List<RepairApplication> list = list(new QueryWrapper<RepairApplication>().in("id", ids));
+        final List<RepairApplication> list =
+                list(new QueryWrapper<RepairApplication>()
+                        .in("id", ids));
 
         String path = properties.getPath().getPath().replace("\\", "/");
         path = path.substring(0, path.indexOf("/picture") + 1);
