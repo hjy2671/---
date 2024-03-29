@@ -32,23 +32,22 @@ public class RepairApplication extends CommonEntity<RepairApplication> implement
     @ApiModelProperty(value = "ID", hidden = true)
     private String id;
 
+    private String lng;
+
+    private String lat;
+
     @ApiModelProperty(value = "故障详情")
     private String faultDetails;
 
     @ApiModelProperty(value = "故障位置")
     private String faultLocation;
 
-    @ApiModelProperty(value = "图片")
-    private String picture;
-
-    @ApiModelProperty(value = "紧急程度")
-    private String emergencyDegree;
-
-    @ApiModelProperty(value = "状态")
+    @ApiModelProperty(value = "状态(0审核拒绝，1待审核，2已公布，3已指派，4处理中，5已完成)")
     private String status;
 
-    @ApiModelProperty(value = "发现时间")
-    private Date foundTime;
+    private Date expectedProcessingDateFrom;
+
+    private Date expectedProcessingDateTo;
 
     @ApiModelProperty(value = "开始时间")
     private Date startTime;
@@ -59,28 +58,4 @@ public class RepairApplication extends CommonEntity<RepairApplication> implement
     @ApiModelProperty(value = "提供者id")
     private Long providerId;
 
-    @ApiModelProperty(value = "星级")
-    private String grade = "0";
-
-    @ApiModelProperty(value = "评价")
-    private String evaluation;
-
-    public boolean isNull(){
-        return faultDetails == null && faultLocation == null;
-    }
-
-    @TableField(exist = false)
-    private static final StringBuilder builder = new StringBuilder();
-
-    public void setPicture(String picture, @Value("${server.port}") String port) throws UnknownHostException {
-        if (picture != null){
-            picture = builder.append("http://")
-                    .append(InetAddress.getLocalHost()
-                    .getHostAddress())
-                    .append(":").append(port)
-                    .append("/").append(picture).toString();
-            builder.setLength(0);
-        }
-        this.picture = picture;
-    }
 }
