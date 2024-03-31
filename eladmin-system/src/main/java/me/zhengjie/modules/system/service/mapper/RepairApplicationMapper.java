@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import me.zhengjie.base.CommonMapper;
 import me.zhengjie.base.PageInfo;
 import me.zhengjie.modules.system.domain.RepairApplication;
+import me.zhengjie.modules.system.domain.vo.RepairApplicationVo;
 import me.zhengjie.modules.system.service.dto.*;
 import me.zhengjie.modules.system.service.dto.criteria.RepairApplicationCriteria;
 import org.apache.ibatis.annotations.Param;
@@ -43,5 +44,5 @@ public interface RepairApplicationMapper extends CommonMapper<RepairApplicationM
     EvaluationStatisticDto getEvaluationStatistics();
 
 
-
+    IPage<RepairApplicationVo> getProvideByMe(@Param("userId") Long currentUserId, IPage<RepairApplicationVo> mybatisPage);
 }

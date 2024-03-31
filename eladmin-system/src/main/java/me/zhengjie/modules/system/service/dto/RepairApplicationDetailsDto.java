@@ -19,7 +19,7 @@ public class RepairApplicationDetailsDto {
 
     @TableId(type= IdType.AUTO)
     @ApiModelProperty(value = "ID", hidden = true)
-    private String id;
+    private Long id;
 
     @ApiModelProperty(value = "故障详情")
     private String faultDetails;

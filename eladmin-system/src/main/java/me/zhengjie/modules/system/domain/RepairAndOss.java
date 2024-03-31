@@ -10,9 +10,9 @@ import lombok.Data;
 public class RepairAndOss {
 
     @TableId(type= IdType.ASSIGN_ID)
-    private String id;
+    private Long id;
     private String ossId;
-    private String repairApplicationId;
+    private Long repairApplicationId;
     private String type;
 
 }

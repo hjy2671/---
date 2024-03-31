@@ -30,7 +30,7 @@ public class RepairApplication extends CommonEntity<RepairApplication> implement
 
     @TableId(type= IdType.ASSIGN_ID)
     @ApiModelProperty(value = "ID", hidden = true)
-    private String id;
+    private Long id;
 
     private String lng;
 

@@ -14,10 +14,10 @@ import java.util.Date;
 public class RepairApplicationAssignToMeDto {
 
     @ApiModelProperty(value = "ID", hidden = true)
-    private String id;
+    private Long id;
 
     @ApiModelProperty(value = "servicemanId", hidden = true)
-    private String repairServicemanId;
+    private Long repairServicemanId;
 
     @ApiModelProperty(value = "故障详情")
     private String faultDetails;

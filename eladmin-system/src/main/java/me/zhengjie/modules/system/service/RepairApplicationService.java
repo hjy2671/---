@@ -5,6 +5,7 @@ import me.zhengjie.base.PageInfo;
 import me.zhengjie.modules.system.domain.RepairApplication;
 import me.zhengjie.modules.system.domain.RepairServiceman;
 import me.zhengjie.modules.system.domain.User;
+import me.zhengjie.modules.system.domain.vo.RepairApplicationVo;
 import me.zhengjie.modules.system.service.dto.*;
 import me.zhengjie.modules.system.service.dto.criteria.RepairApplicationCriteria;
 import org.springframework.data.domain.Pageable;
@@ -58,4 +59,5 @@ public interface RepairApplicationService extends CommonService<RepairApplicatio
 
     EvaluationStatisticDto getEvaluationStatistics();
 
+    PageInfo<RepairApplicationVo> getProvideByMe(Long currentUserId, Pageable pageable);
 }

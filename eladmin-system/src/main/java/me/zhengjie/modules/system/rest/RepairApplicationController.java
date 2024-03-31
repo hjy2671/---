@@ -9,6 +9,7 @@ import me.zhengjie.annotation.Log;
 import me.zhengjie.base.PageInfo;
 import me.zhengjie.modules.system.domain.RepairApplication;
 import me.zhengjie.modules.system.domain.RepairServiceman;
+import me.zhengjie.modules.system.domain.vo.RepairApplicationVo;
 import me.zhengjie.modules.system.service.FileService;
 import me.zhengjie.modules.system.service.RepairApplicationService;
 import me.zhengjie.modules.system.service.dto.RepairApplicationDetailsDto;
@@ -34,27 +35,19 @@ import java.util.Set;
 public class RepairApplicationController {
 
     private final RepairApplicationService repairApplicationService;
-    private final FileService fileService;
-
-
-    @PostMapping("/t")
-    @AnonymousAccess
-    public void queryAll(@RequestParam("file") MultipartFile file, String path){
-        fileService.upload(file, path);
-    }
-
-    @PostMapping("/s")
-    @AnonymousAccess
-    public void queryAll(MultipartFile[] files, String path){
-        fileService.upload(files, path);
-    }
-
 
     @Log("查询故障报修信息列表")
     @ApiOperation(value = "查询故障报修信息列表")
     @GetMapping
     public ResponseEntity<PageInfo<RepairApplicationDetailsDto>> queryAll(RepairApplicationCriteria criteria, Pageable pageable){
         return new ResponseEntity<>(repairApplicationService.queryAll(criteria, pageable), HttpStatus.OK);
+    }
+
+    @Log("查询由我的报修")
+    @ApiOperation(value = "查询由我的报修")
+    @GetMapping("/provideByMe")
+    public ResponseEntity<PageInfo<RepairApplicationVo>> getProvideByMe(Pageable pageable){
+        return new ResponseEntity<>(repairApplicationService.getProvideByMe(SecurityUtils.getCurrentUserId(), pageable), HttpStatus.OK);
     }
 
     @Log("修改故障报修信")
@@ -79,13 +72,6 @@ public class RepairApplicationController {
     @PreAuthorize("@el.check('repair:del')")
     public ResponseEntity<Boolean> delete(@RequestBody Set<String> ids){
         return new ResponseEntity<>(repairApplicationService.deleteAll(ids), HttpStatus.OK);
-    }
-
-    @Log("查询由我提供的故障报修信息列表")
-    @ApiOperation(value = "查询由我提供的故障报修信息列表")
-    @GetMapping("/provideByMe")
-    public ResponseEntity<List<RepairApplicationDetailsDto>> queryProvideByMe(){
-        return new ResponseEntity<>(repairApplicationService.queryProvideByUserId(SecurityUtils.getCurrentUserId()), HttpStatus.OK);
     }
 
     @Log("查询待处理故障报修信息列表")
@@ -131,7 +117,7 @@ public class RepairApplicationController {
     @Log("设置评价")
     @ApiOperation(value = "设置评价")
     @GetMapping("/setEvaluation")
-    public ResponseEntity<Boolean> setEvaluation(String repairId, String grade, String comment){
+    public ResponseEntity<Boolean> setEvaluation(Long repairId, String grade, String comment){
         final RepairApplication application = new RepairApplication();
         application.setId(repairId);
         return new ResponseEntity<>(repairApplicationService.updateById(application), HttpStatus.OK);

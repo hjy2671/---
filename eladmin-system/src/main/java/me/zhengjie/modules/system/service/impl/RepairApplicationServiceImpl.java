@@ -9,6 +9,7 @@ import me.zhengjie.base.QueryHelpMybatisPlus;
 import me.zhengjie.base.impl.CommonServiceImpl;
 import me.zhengjie.config.FileProperties;
 import me.zhengjie.modules.system.domain.*;
+import me.zhengjie.modules.system.domain.vo.RepairApplicationVo;
 import me.zhengjie.modules.system.service.FileService;
 import me.zhengjie.modules.system.service.LikeOrNotService;
 import me.zhengjie.modules.system.service.RepairServicemanService;
@@ -59,20 +60,12 @@ public class RepairApplicationServiceImpl extends CommonServiceImpl<RepairApplic
         }
         final IPage<RepairApplicationDetailsDto> page = repairApplicationMapper.queryAll(QueryHelpMybatisPlus.getPredicate(criteria), PageUtil.toMybatisPage(pageable));
 
-        final List<LikeOrNot> likes = likeOrNotService.list(new QueryWrapper<LikeOrNot>().eq("user_id", SecurityUtils.getCurrentUserId()));
-        for (RepairApplicationDetailsDto record : page.getRecords()) {
-            for (LikeOrNot like : likes) {
-                if (record.getId().equals(like.getRepairId())) {
-                    if (LikeOrNotTypeEnum.like.getCode().equals(like.getType())){
-                        record.setHasLike(true);
-                    }else {
-                        record.setHasNotLike(true);
-                    }
-                }
-            }
-        }
-
         return ConvertUtil.convertPage(page);
+    }
+
+    @Override
+    public PageInfo<RepairApplicationVo> getProvideByMe(Long currentUserId, Pageable pageable) {
+        return ConvertUtil.convertPage(repairApplicationMapper.getProvideByMe(currentUserId, PageUtil.toMybatisPage(pageable)));
     }
 
     @Override
@@ -201,6 +194,7 @@ public class RepairApplicationServiceImpl extends CommonServiceImpl<RepairApplic
     public EvaluationStatisticDto getEvaluationStatistics() {
         return repairApplicationMapper.getEvaluationStatistics();
     }
+
 
 
 }

@@ -26,7 +26,7 @@ public class LikeOrNot extends CommonEntity<LikeOrNot> implements Serializable {
 
     @TableId(type= IdType.ASSIGN_ID)
     @ApiModelProperty(value = "ID", hidden = true)
-    private String id;
+    private Long id;
 
     @ApiModelProperty(value = "报修id")
     private String repairId;

@@ -25,10 +25,10 @@ public class RepairServiceman extends CommonEntity<RepairServiceman> implements 
 
     @TableId(type= IdType.ASSIGN_ID)
     @ApiModelProperty(value = "ID", hidden = true)
-    private String id;
+    private Long id;
 
     @ApiModelProperty(value = "报修id")
-    private String repairId;
+    private Long repairId;
 
     @ApiModelProperty(value = "维修人员id")
     private Long servicemanId;
