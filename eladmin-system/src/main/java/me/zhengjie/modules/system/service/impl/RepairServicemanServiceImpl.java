@@ -1,13 +1,11 @@
 package me.zhengjie.modules.system.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import lombok.AllArgsConstructor;
 import me.zhengjie.base.PageInfo;
 import me.zhengjie.base.QueryHelpMybatisPlus;
 import me.zhengjie.base.impl.CommonServiceImpl;
 import me.zhengjie.modules.system.domain.RepairApplication;
 import me.zhengjie.modules.system.domain.RepairServiceman;
-import me.zhengjie.modules.system.domain.User;
 import me.zhengjie.modules.system.service.RepairApplicationService;
 import me.zhengjie.modules.system.service.RepairServicemanService;
 import me.zhengjie.modules.system.service.UserService;
@@ -84,7 +82,7 @@ public class RepairServicemanServiceImpl extends CommonServiceImpl<RepairService
             updateById(new RepairServiceman(){{setRefuseReason(resource.getRefuseReason());setId(resource.getId());setStatus(RepairServicemanStatusEnum.val3.getCode());}});
 
             // 设置状态为待处理
-            repairApplicationService.updateById(new RepairApplication(){{setId(resource.getRepairId());setStatus(RepairApplicationStatusEnum.BE_REVIEWED.getCode());}});
+            repairApplicationService.updateById(new RepairApplication(){{setId(resource.getRepairId());setStatus(RepairApplicationStatusEnum.PENDING.getCode());}});
         }catch (Exception e){
             throw new RuntimeException("拒绝任务失败，请刷新页面");
         }
@@ -96,7 +94,7 @@ public class RepairServicemanServiceImpl extends CommonServiceImpl<RepairService
     public boolean finish(RepairServiceman resource) {
         try {
             // 设置状态为待处理
-            repairApplicationService.updateById(new RepairApplication(){{setFinishTime(new Date());setId(resource.getRepairId());setStatus(RepairApplicationStatusEnum.BE_REVIEWED.getCode());}});
+            repairApplicationService.updateById(new RepairApplication(){{setFinishTime(new Date());setId(resource.getRepairId());setStatus(RepairApplicationStatusEnum.PENDING.getCode());}});
         }catch (Exception e){
             throw new RuntimeException("完成任务失败，请刷新页面");
         }

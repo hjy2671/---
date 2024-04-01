@@ -20,20 +20,14 @@ import me.zhengjie.modules.system.service.mapper.RepairApplicationMapper;
 import me.zhengjie.modules.system.service.RepairApplicationService;
 import me.zhengjie.modules.system.service.mapper.RepairServicemanMapper;
 import me.zhengjie.utils.*;
-import me.zhengjie.utils.enums.LikeOrNotTypeEnum;
 import me.zhengjie.utils.enums.RepairAndOssEnum;
 import me.zhengjie.utils.enums.RepairApplicationStatusEnum;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -112,7 +106,7 @@ public class RepairApplicationServiceImpl extends CommonServiceImpl<RepairApplic
     @Override
     public boolean commit(MultipartFile[] files, RepairApplication resource) {
 
-        resource.setStatus(RepairApplicationStatusEnum.BE_REVIEWED.code);
+        resource.setStatus(RepairApplicationStatusEnum.PENDING.code);
 
         if (repairApplicationMapper.insert(resource) == 0) {
             return false;
@@ -143,7 +137,7 @@ public class RepairApplicationServiceImpl extends CommonServiceImpl<RepairApplic
 
     @Override
     public boolean revoke(String repairId) {
-        return remove(new QueryWrapper<RepairApplication>().eq("status", RepairApplicationStatusEnum.BE_REVIEWED.getCode()).eq("repair_id", repairId));
+        return remove(new QueryWrapper<RepairApplication>().eq("status", RepairApplicationStatusEnum.PENDING.getCode()).eq("repair_id", repairId));
     }
 
     @Transactional
