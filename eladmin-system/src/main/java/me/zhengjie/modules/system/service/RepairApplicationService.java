@@ -1,6 +1,7 @@
 package me.zhengjie.modules.system.service;
 
 import me.zhengjie.base.CommonService;
+import me.zhengjie.base.FileInfo;
 import me.zhengjie.base.PageInfo;
 import me.zhengjie.modules.system.domain.RepairApplication;
 import me.zhengjie.modules.system.domain.RepairServiceman;
@@ -55,9 +56,11 @@ public interface RepairApplicationService extends CommonService<RepairApplicatio
      */
     List<RepairApplicationAssignToMeDto> findAssignByMe();
 
-    boolean deleteAll(Set<String> ids);
+    boolean deleteAll(Set<Long> ids);
 
     EvaluationStatisticDto getEvaluationStatistics();
 
     PageInfo<RepairApplicationVo> getProvideByMe(Long currentUserId, Pageable pageable);
+
+    List<FileInfo> getSitePhotos(Long repairId);
 }

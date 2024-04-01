@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import me.zhengjie.base.CommonMapper;
+import me.zhengjie.base.FileInfo;
 import me.zhengjie.base.PageInfo;
 import me.zhengjie.modules.system.domain.RepairApplication;
 import me.zhengjie.modules.system.domain.vo.RepairApplicationVo;
@@ -45,4 +46,6 @@ public interface RepairApplicationMapper extends CommonMapper<RepairApplicationM
 
 
     IPage<RepairApplicationVo> getProvideByMe(@Param("userId") Long currentUserId, IPage<RepairApplicationVo> mybatisPage);
+
+    List<FileInfo> getSitePhotosByRepairId(@Param("id") Long repairId, @Param("type") String type);
 }

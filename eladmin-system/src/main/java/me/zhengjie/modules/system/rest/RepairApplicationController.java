@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import me.zhengjie.annotation.AnonymousAccess;
 import me.zhengjie.annotation.Log;
+import me.zhengjie.base.FileInfo;
 import me.zhengjie.base.PageInfo;
 import me.zhengjie.modules.system.domain.RepairApplication;
 import me.zhengjie.modules.system.domain.RepairServiceman;
@@ -50,6 +51,13 @@ public class RepairApplicationController {
         return new ResponseEntity<>(repairApplicationService.getProvideByMe(SecurityUtils.getCurrentUserId(), pageable), HttpStatus.OK);
     }
 
+    @Log("查询现场照片")
+    @ApiOperation(value = "查询由我的报修")
+    @GetMapping("/site-photos")
+    public ResponseEntity<List<FileInfo>> getSitePhotos(Long repairId){
+        return new ResponseEntity<>(repairApplicationService.getSitePhotos(repairId), HttpStatus.OK);
+    }
+
     @Log("修改故障报修信")
     @ApiOperation(value = "修改故障报修信")
     @PutMapping
@@ -70,7 +78,7 @@ public class RepairApplicationController {
     @ApiOperation(value = "删除故障报修信")
     @DeleteMapping
     @PreAuthorize("@el.check('repair:del')")
-    public ResponseEntity<Boolean> delete(@RequestBody Set<String> ids){
+    public ResponseEntity<Boolean> delete(@RequestBody Set<Long> ids){
         return new ResponseEntity<>(repairApplicationService.deleteAll(ids), HttpStatus.OK);
     }
 

@@ -4,8 +4,10 @@ import cn.hutool.core.date.DateTime;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import me.zhengjie.utils.SecurityUtils;
 
 import java.util.Date;
@@ -15,6 +17,8 @@ import java.util.UUID;
  * @author hjy
  * @date 2024/3/3 21:04
  */
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Builder
 @TableName("oss")

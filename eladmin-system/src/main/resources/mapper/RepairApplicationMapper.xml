@@ -139,4 +139,17 @@
         where
             ra.provider_id = #{userId}
     </select>
+    <select id="getSitePhotosByRepairId" resultType="me.zhengjie.base.FileInfo">
+        SELECT
+            o.oss_id,
+            o.original_name,
+            o.filename,
+            o.url
+        FROM
+            `sys_repair_application` ra
+                LEFT JOIN repair_and_oss rao ON ra.id = rao.repair_application_id
+                LEFT JOIN oss o ON o.oss_id = rao.oss_id
+        WHERE
+            ra.id = #{id} and type = #{type}
+    </select>
 </mapper>

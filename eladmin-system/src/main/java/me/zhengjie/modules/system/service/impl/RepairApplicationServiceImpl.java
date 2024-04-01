@@ -1,5 +1,6 @@
 package me.zhengjie.modules.system.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.AllArgsConstructor;
@@ -59,7 +60,13 @@ public class RepairApplicationServiceImpl extends CommonServiceImpl<RepairApplic
 
     @Override
     public PageInfo<RepairApplicationVo> getProvideByMe(Long currentUserId, Pageable pageable) {
-        return ConvertUtil.convertPage(repairApplicationMapper.getProvideByMe(currentUserId, PageUtil.toMybatisPage(pageable)));
+        PageInfo<RepairApplicationVo> repairApplicationVoPageInfo = ConvertUtil.convertPage(repairApplicationMapper.getProvideByMe(currentUserId, PageUtil.toMybatisPage(pageable)));
+        return repairApplicationVoPageInfo;
+    }
+
+    @Override
+    public List<FileInfo> getSitePhotos(Long repairId) {
+        return repairApplicationMapper.getSitePhotosByRepairId(repairId, RepairAndOssEnum.SCENE.code);
     }
 
     @Override
@@ -107,7 +114,7 @@ public class RepairApplicationServiceImpl extends CommonServiceImpl<RepairApplic
     public boolean commit(MultipartFile[] files, RepairApplication resource) {
 
         resource.setStatus(RepairApplicationStatusEnum.PENDING.code);
-
+        resource.setProviderId(SecurityUtils.getCurrentUserId());
         if (repairApplicationMapper.insert(resource) == 0) {
             return false;
         }
@@ -169,19 +176,21 @@ public class RepairApplicationServiceImpl extends CommonServiceImpl<RepairApplic
     }
 
     @Override
-    public boolean deleteAll(Set<String> ids) {
+    public boolean deleteAll(Set<Long> ids) {
 
         final List<RepairApplication> list =
-                list(new QueryWrapper<RepairApplication>()
-                        .in("id", ids));
+                list(new LambdaQueryWrapper<RepairApplication>()
+                        .in(RepairApplication::getId, ids));
 
-        String path = properties.getPath().getPath().replace("\\", "/");
-        path = path.substring(0, path.indexOf("/picture") + 1);
-        for (RepairApplication application : list) {
-            //删除文件
-        }
-        this.removeByIds(ids);
-        return false;
+        boolean result = deleteFilesByRepairIds(list.stream().map(RepairApplication::getId).collect(Collectors.toSet()));
+        if (result && this.removeByIds(ids))
+            return true;
+
+        throw new RuntimeException("删除失败");
+    }
+
+    private boolean deleteFilesByRepairIds(Set<Long> ids) {
+        return repairAndOssMapper.delete(new LambdaQueryWrapper<RepairAndOss>().in(RepairAndOss::getRepairApplicationId, ids)) > 0;
     }
 
     @Override

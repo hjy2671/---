@@ -1,16 +1,24 @@
 package me.zhengjie.modules.system.util.status;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import me.zhengjie.modules.system.domain.RepairApplication;
 
-public interface RepairStatus<T> {
+public interface RepairStatus {
 
-    RepairStatus<T> pass();
+    String REFUSE = "0";
+    String PENDING = "1";
+    String PUBLISHED = "2";
+    String ASSIGNED = "3";
+    String PROCESSING = "4";
+    String COMPLETED = "5";
 
-    RepairStatus<T> rollback();
+    RepairStatus pass();
 
-    RepairStatus<T> publish();
+    RepairStatus rollback();
+
+    RepairStatus publish();
 
 
-    boolean save(BaseMapper<T> mapper);
+    boolean save(BaseMapper<RepairApplication> mapper);
 
 }

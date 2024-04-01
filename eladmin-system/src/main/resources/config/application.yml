@@ -25,7 +25,7 @@ spring:
   redis:
     #数据库索引
     database: ${REDIS_DB:0}
-    host: ${REDIS_HOST:127.0.0.1}
+    host: ${REDIS_HOST:124.71.131.27}
     port: ${REDIS_PORT:6379}
     password: ${REDIS_PWD:hjy@26.71}
     #连接超时时间
@@ -60,3 +60,10 @@ mybatis-plus:
       logic-delete-value: 1
       logic-not-delete-value: 0
       mapper-locations: classpath:mapper/*.xml
+
+minio:
+  endpoint: http://124.71.131.27:9000
+  accessKey: gRy6WQFF6x74sIOIPErb
+  accessSecret: FNVQMGsvmIpfR7IoHAUOblPhnUHE5Ey18ajjRBcj
+  bucket: repair
+  maxSize: 10

@@ -28,7 +28,7 @@ public abstract class AbstractRepairStatus implements RepairStatus{
     }
 
     @Override
-    public boolean save(BaseMapper mapper) {
+    public boolean save(BaseMapper<RepairApplication> mapper) {
         return mapper.updateById(repair) > 0;
     }
 }
