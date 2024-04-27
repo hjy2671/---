@@ -56,28 +56,24 @@
         ( rs.serviceman_id = #{userId} OR ra.provider_id = #{userId} OR rs.appointer_id = #{userId} )
         AND rs.`status` &lt;&gt; '2'
     </select>
-    <select id="findAsassignByMe"
-            resultType="me.zhengjie.modules.system.service.dto.RepairApplicationAssignToMeDto">
+    <select id="findAssignByMe"
+            resultType="me.zhengjie.modules.system.domain.vo.RepairApplicationVo">
         SELECT
             ra.id,
-            rs.id AS 'repairServicemanId',
+            ra.lng,
+            ra.lat,
             ra.fault_details,
             ra.fault_location,
-            ra.picture,
-            ra.emergency_degree,
-            ra.`status` AS 'repairStatus',
-            ra.found_time,
+            ra.`status`,
             ra.start_time,
             ra.finish_time,
-            rs.STATUS AS 'acceptStatus',
-            rs.refuse_reason
+            us.nick_name AS 'servicemanNick'
         FROM
             sys_repair_application ra
                 LEFT JOIN sys_repair_serviceman rs ON ra.id = rs.repair_id
-        WHERE
-            ( ra.STATUS &lt;&gt; '3' )
-          AND rs.appointer_id = #{userId}
-        order by ra.finish_time desc
+                LEFT JOIN sys_user us ON rs.serviceman_id = us.user_id
+        where
+            rs.appointer_id = #{userId}
     </select>
     <select id="queryProvideByUserId"
             resultType="me.zhengjie.modules.system.service.dto.RepairApplicationDetailsDto">
@@ -131,11 +127,15 @@
             ra.`status`,
             ra.start_time,
             ra.finish_time,
-            us.nick_name AS 'servicemanNick'
+            us.nick_name AS 'servicemanNick',
+            e.evaluation,
+            e.effect_grade,
+            e.quality_grade
         FROM
             sys_repair_application ra
                 LEFT JOIN sys_repair_serviceman rs ON ra.id = rs.repair_id
                 LEFT JOIN sys_user us ON rs.serviceman_id = us.user_id
+                LEFT JOIN evaluation e on ra.id = e.application_id
         where
             ra.provider_id = #{userId}
     </select>
@@ -151,5 +151,88 @@
                 LEFT JOIN oss o ON o.oss_id = rao.oss_id
         WHERE
             ra.id = #{id} and type = #{type}
+    </select>
+
+    <resultMap id="pendList" type="me.zhengjie.modules.system.domain.vo.RepairApplicationVo">
+        <id column="id" property="id"/>
+        <result column="fault_details" property="faultDetails"/>
+        <result column="fault_location" property="faultLocation"/>
+        <result column="status" property="status"/>
+        <result column="lng" property="lng"/>
+        <result column="lat" property="lat"/>
+        <result column="expected_processing_date_from" property="expectedProcessingDateFrom"/>
+        <result column="expected_processing_date_to" property="expectedProcessingDateTo"/>
+        <result column="provider_id" property="providerId"/>
+
+        <collection property="pictures"
+                    select="getSitePhotosByRepairId"
+                    column="id=id,type=type"
+                    ofType="me.zhengjie.base.FileInfo">
+        </collection>
+    </resultMap>
+
+
+    <select id="getPendingList" resultMap="pendList">
+        SELECT
+            ra.id,
+            ra.lng,
+            ra.lat,
+            ra.fault_details,
+            ra.fault_location,
+            ra.`status`,
+            ra.provider_id,
+            ra.expected_processing_date_to,
+            ra.expected_processing_date_from,
+            '0' as type
+        FROM
+            sys_repair_application ra
+                LEFT JOIN sys_user us on us.user_id = ra.provider_id
+        where
+            ra.`status` = '1'
+          and us.organization_id = (SELECT organization_id from sys_user where user_id = #{userId})
+    </select>
+
+    <resultMap id="resolved" type="me.zhengjie.modules.system.domain.vo.RepairSolvedVo">
+        <id column="id" property="id"/>
+        <result column="fault_details" property="faultDetails"/>
+        <result column="fault_location" property="faultLocation"/>
+        <result column="start_time" property="startTime" />
+        <result column="finish_time" property="finishTime" />
+        <result column="evaluation" property="evaluation" />
+        <result column="effect_grade" property="effectGrade" />
+        <result column="quality_grade" property="qualityGrade" />
+
+        <collection property="before"
+                    select="getSitePhotosByRepairId"
+                    column="id=id,type=t1"
+                    ofType="me.zhengjie.base.FileInfo">
+        </collection>
+
+        <collection property="after"
+                    select="getSitePhotosByRepairId"
+                    column="id=id,type=t2"
+                    ofType="me.zhengjie.base.FileInfo">
+        </collection>
+    </resultMap>
+
+    <select id="getResolveByMe" resultMap="resolved">
+        SELECT
+            ra.id,
+            ra.fault_details,
+            ra.fault_location,
+            ra.start_time,
+            ra.finish_time,
+            e.evaluation,
+            e.effect_grade,
+            e.quality_grade,
+            '0' AS t1,
+            '1' AS t2
+        FROM
+            sys_repair_application ra
+                LEFT JOIN evaluation e on ra.id = e.application_id
+                LEFT JOIN sys_repair_serviceman s on ra.id = s.repair_id
+        WHERE
+            ra.`status` = '5'
+          and s.serviceman_id = #{userId}
     </select>
 </mapper>

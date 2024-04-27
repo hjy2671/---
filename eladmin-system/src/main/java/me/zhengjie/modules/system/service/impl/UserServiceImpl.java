@@ -16,6 +16,7 @@
 package me.zhengjie.modules.system.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import me.zhengjie.base.FileInfo;
 import me.zhengjie.config.FileProperties;
 import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.modules.security.service.OnlineUserService;
@@ -24,6 +25,7 @@ import me.zhengjie.modules.system.domain.User;
 import me.zhengjie.exception.EntityExistException;
 import me.zhengjie.exception.EntityNotFoundException;
 import me.zhengjie.modules.system.repository.UserRepository;
+import me.zhengjie.modules.system.service.FileService;
 import me.zhengjie.modules.system.service.UserService;
 import me.zhengjie.modules.system.service.dto.RoleSmallDto;
 import me.zhengjie.modules.system.service.dto.criteria.UserQueryCriteria;
@@ -59,6 +61,7 @@ public class UserServiceImpl implements UserService {
     private final RedisUtils redisUtils;
     private final UserCacheClean userCacheClean;
     private final OnlineUserService onlineUserService;
+    private final FileService fileService;
 
     @Override
     public Object queryAll(UserQueryCriteria criteria, Pageable pageable) {
@@ -203,9 +206,9 @@ public class UserServiceImpl implements UserService {
         }
         User user = userRepository.findByUsername(SecurityUtils.getCurrentUsername());
         String oldPath = user.getAvatarPath();
-        File file = FileUtil.upload(multipartFile, properties.getPath().getAvatar());
-        user.setAvatarPath(subPath(Objects.requireNonNull(file).getAbsolutePath().replace("\\", "/")));
-        user.setAvatarName(file.getName());
+        FileInfo upload = fileService.upload(multipartFile, "avatar");
+        user.setAvatarPath(upload.getUrl());
+        user.setAvatarName(upload.getOriginalName());
         userRepository.save(user);
         if (StringUtils.isNotBlank(oldPath)) {
             FileUtil.del(oldPath);

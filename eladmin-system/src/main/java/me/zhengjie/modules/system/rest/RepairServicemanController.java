@@ -8,6 +8,8 @@ import me.zhengjie.annotation.Log;
 import me.zhengjie.base.PageInfo;
 import me.zhengjie.modules.system.domain.RepairApplication;
 import me.zhengjie.modules.system.domain.RepairServiceman;
+import me.zhengjie.modules.system.domain.vo.RepairApplicationVo;
+import me.zhengjie.modules.system.domain.vo.ServicemanSimple;
 import me.zhengjie.modules.system.service.RepairServicemanService;
 import me.zhengjie.modules.system.service.dto.RepairApplicationDetailsDto;
 import me.zhengjie.modules.system.service.dto.criteria.RepairApplicationCriteria;
@@ -17,7 +19,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Set;
 
 
@@ -28,6 +32,13 @@ import java.util.Set;
 public class RepairServicemanController {
 
     private final RepairServicemanService repairServicemanService;
+
+    @Log("查询报修信息与维修人员关系列表")
+    @ApiOperation(value = "查询报修信息与维修人员关系信息列表")
+    @GetMapping("/simple-list")
+    public ResponseEntity<List<ServicemanSimple>> simpleList(){
+        return new ResponseEntity<>(repairServicemanService.simpleList(), HttpStatus.OK);
+    }
 
     @Log("查询报修信息与维修人员关系列表")
     @ApiOperation(value = "查询报修信息与维修人员关系信息列表")
@@ -66,9 +77,9 @@ public class RepairServicemanController {
 
     @Log("接受任务")
     @ApiOperation(value = "接受任务")
-    @PostMapping("/accept")
-    public ResponseEntity<Object> accept(@RequestBody RepairServiceman resource){
-        return new ResponseEntity<>(repairServicemanService.accept(resource), HttpStatus.OK);
+    @GetMapping("/accept")
+    public ResponseEntity<Object> accept(Long repairId){
+        return new ResponseEntity<>(repairServicemanService.accept(repairId), HttpStatus.OK);
     }
 
     @Log("拒绝任务")
@@ -81,14 +92,14 @@ public class RepairServicemanController {
     @Log("完成任务")
     @ApiOperation(value = "完成任务")
     @PostMapping("/finish")
-    public ResponseEntity<Object> finish(@RequestBody RepairServiceman resource){
-        return new ResponseEntity<>(repairServicemanService.finish(resource), HttpStatus.OK);
+    public ResponseEntity<Object> finish(Long repairId, @RequestParam("files") MultipartFile[] files){
+        return new ResponseEntity<>(repairServicemanService.finish(repairId, files), HttpStatus.OK);
     }
 
-    @Log("查看指派给我的为序任务")
+    @Log("查看指派给我的任务")
     @ApiOperation(value = "查看指派给我的维修任务")
     @GetMapping("/findAssignToMe")
-    public ResponseEntity<Object> findAssignToMe(){
+    public ResponseEntity<List<RepairApplicationVo>> findAssignToMe(){
         return new ResponseEntity<>(repairServicemanService.findAssignToMe(SecurityUtils.getCurrentUserId()), HttpStatus.OK);
     }
 

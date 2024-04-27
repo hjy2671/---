@@ -1,5 +1,6 @@
 package me.zhengjie.base;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Data;
@@ -27,5 +28,9 @@ public class PageInfo<T> implements Serializable{
     }
 
     public PageInfo() {
+    }
+
+    public static <T> PageInfo<T> of(IPage<T> page) {
+        return new PageInfo<>(page.getTotal(), page.getRecords());
     }
 }

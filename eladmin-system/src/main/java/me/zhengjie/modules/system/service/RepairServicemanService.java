@@ -5,6 +5,8 @@ import me.zhengjie.base.PageInfo;
 import me.zhengjie.modules.system.domain.RepairApplication;
 import me.zhengjie.modules.system.domain.RepairServiceman;
 import me.zhengjie.modules.system.domain.User;
+import me.zhengjie.modules.system.domain.vo.RepairApplicationVo;
+import me.zhengjie.modules.system.domain.vo.ServicemanSimple;
 import me.zhengjie.modules.system.service.dto.RepairApplicationAssignToMeDto;
 import me.zhengjie.modules.system.service.dto.RepairApplicationDetailsDto;
 import me.zhengjie.modules.system.service.dto.ServiceManTaskStatistics;
@@ -12,6 +14,8 @@ import me.zhengjie.modules.system.service.dto.SimpleUserDto;
 import me.zhengjie.modules.system.service.dto.criteria.RepairApplicationCriteria;
 import me.zhengjie.modules.system.service.dto.criteria.RepairServicemanCriteria;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -23,14 +27,15 @@ public interface RepairServicemanService extends CommonService<RepairServiceman>
 
     ServiceManTaskStatistics statisticsTask(Long userId);
 
-    boolean accept(RepairServiceman resource);
+    boolean accept(Long repairId);
 
     boolean refuse(RepairServiceman resource);
 
-    boolean finish(RepairServiceman resource);
+    Boolean finish(Long repairId, MultipartFile[] files);
 
-    List<RepairApplicationAssignToMeDto> findAssignToMe(Long userId);
+    List<RepairApplicationVo> findAssignToMe(Long userId);
 
     List<SimpleUserDto> findUserByRole(Integer role);
 
+    List<ServicemanSimple> simpleList();
 }

@@ -1,6 +1,5 @@
 package me.zhengjie.base;
 
-import cn.hutool.core.date.DateTime;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -8,10 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import me.zhengjie.utils.SecurityUtils;
 
+import java.io.Serializable;
 import java.util.Date;
-import java.util.UUID;
 
 /**
  * @author hjy
@@ -22,10 +20,10 @@ import java.util.UUID;
 @Data
 @Builder
 @TableName("oss")
-public class FileInfo {
+public class FileInfo implements Serializable {
 
-    @TableId(type = IdType.ASSIGN_ID)
-    private String ossId;
+    @TableId(type = IdType.AUTO)
+    private Long ossId;
 
     private String filename;//处理过后的名字，包括存储路径什么的
 

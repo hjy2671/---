@@ -53,27 +53,55 @@
         WHERE
             s.id = u.user_id
     </select>
+    <resultMap id="toMeList" type="me.zhengjie.modules.system.domain.vo.RepairApplicationVo">
+        <id column="id" property="id"/>
+        <result column="fault_details" property="faultDetails"/>
+        <result column="fault_location" property="faultLocation"/>
+        <result column="status" property="status"/>
+        <result column="lng" property="lng"/>
+        <result column="lat" property="lat"/>
+        <result column="expected_processing_date_from" property="expectedProcessingDateFrom"/>
+        <result column="expected_processing_date_to" property="expectedProcessingDateTo"/>
+        <result column="provider_id" property="providerId"/>
+
+        <collection property="pictures"
+                    select="getSitePhotosByRepairId"
+                    column="id=id,type=type"
+                    ofType="me.zhengjie.base.FileInfo">
+        </collection>
+    </resultMap>
+    <select id="getSitePhotosByRepairId" resultType="me.zhengjie.base.FileInfo">
+        SELECT
+            o.oss_id,
+            o.original_name,
+            o.filename,
+            o.url
+        FROM
+            `sys_repair_application` ra
+                LEFT JOIN repair_and_oss rao ON ra.id = rao.repair_application_id
+                LEFT JOIN oss o ON o.oss_id = rao.oss_id
+        WHERE
+            ra.id = #{id} and type = #{type}
+    </select>
     <select id="findAssignToMe"
-            resultType="me.zhengjie.modules.system.service.dto.RepairApplicationAssignToMeDto">
+            resultMap="toMeList">
         SELECT
             ra.id,
-            rs.id as 'repairServicemanId',
+            ra.lng,
+            ra.lat,
             ra.fault_details,
             ra.fault_location,
-            ra.picture,
-            ra.emergency_degree,
-            ra.`status` AS 'repairStatus',
-            ra.found_time,
-            ra.start_time,
-            ra.finish_time,
-            rs.STATUS AS 'acceptStatus'
+            ra.`status`,
+            ra.provider_id,
+            ra.expected_processing_date_to,
+            ra.expected_processing_date_from,
+            '0' as type
         FROM
             sys_repair_application ra
                 LEFT JOIN sys_repair_serviceman rs ON ra.id = rs.repair_id
-        WHERE
-            ( ra.STATUS = '1' OR ra.STATUS = '2' )
-          AND rs.serviceman_id = #{userId}
-          AND (rs.STATUS = '0' OR rs.STATUS = '1')
+        where
+            (ra.`status` = '3' or ra.`status` = '4')
+          and rs.serviceman_id = #{userId}
     </select>
     <select id="findUserByRole" resultType="me.zhengjie.modules.system.service.dto.SimpleUserDto">
         SELECT
@@ -101,6 +129,35 @@
         WHERE
         ur.role_id = #{role}
         order by s2.doingNum, s1.pendingNum
+    </select>
+    <select id="getSimpleServiceman" resultType="me.zhengjie.modules.system.domain.vo.ServicemanSimple">
+        SELECT
+            su.user_id,
+            su.nick_name
+        FROM
+            sys_user su left join sys_users_roles sur on su.user_id = sur.user_id
+        WHERE
+            sur.role_id = 4
+          and sur.user_id not IN (SELECT user_id from sys_users_roles where role_id = 1)
+          and su.organization_id = (SELECT organization_id from sys_user where user_id = #{userId})
+    </select>
+    <select id="getOptimalMatchingServicemanId" resultType="java.lang.Long">
+        SELECT
+            su.user_id,
+            COUNT(IF(sra.`status` = '3' or sra.`status` = '4', 1, NULL)) as num,
+            COUNT(IF(sra.`status` = '5', 1, NULL)) as completeNum
+        FROM
+            sys_user su
+                LEFT JOIN sys_users_roles sur ON su.user_id = sur.user_id
+                LEFT JOIN sys_repair_serviceman srs on su.user_id = srs.serviceman_id
+                LEFT JOIN sys_repair_application sra on sra.id = srs.repair_id
+        WHERE
+            sur.role_id = 4
+          AND sur.user_id NOT IN ( SELECT user_id FROM sys_users_roles WHERE role_id = 1 )
+          AND su.organization_id = (SELECT organization_id FROM sys_user WHERE user_id = #{userId})
+        GROUP BY su.user_id
+        ORDER BY num, completeNum
+            limit 1
     </select>
 
 </mapper>

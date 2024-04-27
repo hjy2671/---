@@ -8,18 +8,25 @@ import me.zhengjie.annotation.AnonymousAccess;
 import me.zhengjie.annotation.Log;
 import me.zhengjie.base.FileInfo;
 import me.zhengjie.base.PageInfo;
+import me.zhengjie.modules.system.domain.Evaluation;
 import me.zhengjie.modules.system.domain.RepairApplication;
 import me.zhengjie.modules.system.domain.RepairServiceman;
+import me.zhengjie.modules.system.domain.bo.RepairAssignBo;
 import me.zhengjie.modules.system.domain.vo.RepairApplicationVo;
+import me.zhengjie.modules.system.domain.vo.RepairSolvedVo;
 import me.zhengjie.modules.system.service.FileService;
 import me.zhengjie.modules.system.service.RepairApplicationService;
 import me.zhengjie.modules.system.service.dto.RepairApplicationDetailsDto;
 import me.zhengjie.modules.system.service.dto.criteria.RepairApplicationCriteria;
 import me.zhengjie.utils.SecurityUtils;
+import me.zhengjie.utils.enums.RepairApplicationStatusEnum;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.Assert;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,11 +58,25 @@ public class RepairApplicationController {
         return new ResponseEntity<>(repairApplicationService.getProvideByMe(SecurityUtils.getCurrentUserId(), pageable), HttpStatus.OK);
     }
 
+    @Log("查询由我解决的报修任务")
+    @ApiOperation(value = "查询由我解决的报修任务")
+    @GetMapping("/resolveByMe")
+    public ResponseEntity<PageInfo<RepairSolvedVo>> getResolveByMe(Pageable pageable){
+        return new ResponseEntity<>(repairApplicationService.getResolveByMe(SecurityUtils.getCurrentUserId(), pageable), HttpStatus.OK);
+    }
+
     @Log("查询现场照片")
-    @ApiOperation(value = "查询由我的报修")
+    @ApiOperation(value = "查询现场照片")
     @GetMapping("/site-photos")
     public ResponseEntity<List<FileInfo>> getSitePhotos(Long repairId){
         return new ResponseEntity<>(repairApplicationService.getSitePhotos(repairId), HttpStatus.OK);
+    }
+
+    @Log("查询回执照片")
+    @ApiOperation(value = "查询回执照片")
+    @GetMapping("/result-photos")
+    public ResponseEntity<List<FileInfo>> getResultPhotos(Long repairId){
+        return new ResponseEntity<>(repairApplicationService.getResultPhotos(repairId), HttpStatus.OK);
     }
 
     @Log("修改故障报修信")
@@ -85,8 +106,18 @@ public class RepairApplicationController {
     @Log("查询待处理故障报修信息列表")
     @ApiOperation(value = "查询待处理故障报修信息列表")
     @GetMapping("/pending")
-    public ResponseEntity<Object> getPending(){
-        return new ResponseEntity<>(repairApplicationService.list(new QueryWrapper<RepairApplication>().eq("status", "0")), HttpStatus.OK);
+    public ResponseEntity<PageInfo<RepairApplicationVo>> getPending(Pageable page){
+        return new ResponseEntity<>(repairApplicationService.pendingList(SecurityUtils.getCurrentUserId(), page), HttpStatus.OK);
+    }
+
+    @Log("审核回退故障报修信息")
+    @ApiOperation(value = "审核回退故障报修信息")
+    @GetMapping("/rollback")
+    public ResponseEntity<Void> rollback(Long id, String status){
+        RepairApplication application = new RepairApplication();
+        application.setId(id);
+        application.setStatus(status);
+        return repairApplicationService.rollback(application) ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
     }
 
     @Log("报修信息统计")
@@ -104,14 +135,12 @@ public class RepairApplicationController {
     }
 
 
-    @Log("点赞或点踩")
-    @ApiOperation(value = "点赞或点踩")
-    @GetMapping("/like")
-    public ResponseEntity<Object> like(String repairId, String type){
-        if (repairId == null || type == null){
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
-        }
-        repairApplicationService.like(repairId, type);
+    @Log("设置评价")
+    @ApiOperation(value = "设置评价")
+    @PostMapping("/comment")
+    public ResponseEntity<Void> setComment(@RequestBody Evaluation evaluation){
+
+        repairApplicationService.setComment(evaluation);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -122,26 +151,27 @@ public class RepairApplicationController {
         return new ResponseEntity<>(repairApplicationService.revoke(repairId), HttpStatus.OK);
     }
 
-    @Log("设置评价")
-    @ApiOperation(value = "设置评价")
-    @GetMapping("/setEvaluation")
-    public ResponseEntity<Boolean> setEvaluation(Long repairId, String grade, String comment){
-        final RepairApplication application = new RepairApplication();
-        application.setId(repairId);
-        return new ResponseEntity<>(repairApplicationService.updateById(application), HttpStatus.OK);
-    }
-
     @Log("指派任务")
     @ApiOperation(value = "指派任务")
-    @GetMapping("/assign")
-    public ResponseEntity<Boolean> assign(RepairServiceman resource){
-        return new ResponseEntity<>(repairApplicationService.assign(resource), HttpStatus.OK);
+    @PostMapping("/assign")
+    public ResponseEntity<Boolean> assign(@RequestBody RepairAssignBo bo){
+        return new ResponseEntity<>(repairApplicationService.assign(bo), HttpStatus.OK);
+    }
+
+    @Log("发布任务")
+    @ApiOperation(value = "发布任务")
+    @GetMapping("/publish")
+    public ResponseEntity<Boolean> assign(Long repairId){
+        RepairApplication application = new RepairApplication();
+        application.setId(repairId);
+        application.setStatus(RepairApplicationStatusEnum.PENDING.code);
+        return new ResponseEntity<>(repairApplicationService.publish(application), HttpStatus.OK);
     }
 
     @Log("查询由我指派的任务")
     @ApiOperation(value = "查询由我指派的任务")
     @GetMapping("/assignByMe")
-    public ResponseEntity<Object> findAssignByMe(){
+    public ResponseEntity<List<RepairApplicationVo>> findAssignByMe(){
         return new ResponseEntity<>(repairApplicationService.findAssignByMe(), HttpStatus.OK);
     }
 

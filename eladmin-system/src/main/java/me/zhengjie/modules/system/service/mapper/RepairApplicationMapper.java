@@ -8,6 +8,7 @@ import me.zhengjie.base.FileInfo;
 import me.zhengjie.base.PageInfo;
 import me.zhengjie.modules.system.domain.RepairApplication;
 import me.zhengjie.modules.system.domain.vo.RepairApplicationVo;
+import me.zhengjie.modules.system.domain.vo.RepairSolvedVo;
 import me.zhengjie.modules.system.service.dto.*;
 import me.zhengjie.modules.system.service.dto.criteria.RepairApplicationCriteria;
 import org.apache.ibatis.annotations.Param;
@@ -40,12 +41,17 @@ public interface RepairApplicationMapper extends CommonMapper<RepairApplicationM
      * 查询由我指派的
      * @return List<RepairApplicationAssignToMeDto>
      */
-    List<RepairApplicationAssignToMeDto> findAsassignByMe(Long userId);
+    List<RepairApplicationVo> findAssignByMe(@Param("userId") Long userId);
 
     EvaluationStatisticDto getEvaluationStatistics();
-
 
     IPage<RepairApplicationVo> getProvideByMe(@Param("userId") Long currentUserId, IPage<RepairApplicationVo> mybatisPage);
 
     List<FileInfo> getSitePhotosByRepairId(@Param("id") Long repairId, @Param("type") String type);
+
+    IPage<RepairApplicationVo> getPendingList(
+            @Param("userId") Long currentUserId,
+            IPage<RepairApplicationVo> mybatisPage);
+
+    IPage<RepairSolvedVo> getResolveByMe(@Param("userId") Long currentUserId, IPage<RepairApplicationVo> mybatisPage);
 }

@@ -10,16 +10,20 @@ import me.zhengjie.base.QueryHelpMybatisPlus;
 import me.zhengjie.base.impl.CommonServiceImpl;
 import me.zhengjie.config.FileProperties;
 import me.zhengjie.modules.system.domain.*;
+import me.zhengjie.modules.system.domain.bo.RepairAssignBo;
 import me.zhengjie.modules.system.domain.vo.RepairApplicationVo;
+import me.zhengjie.modules.system.domain.vo.RepairSolvedVo;
 import me.zhengjie.modules.system.service.FileService;
 import me.zhengjie.modules.system.service.LikeOrNotService;
 import me.zhengjie.modules.system.service.RepairServicemanService;
 import me.zhengjie.modules.system.service.dto.*;
 import me.zhengjie.modules.system.service.dto.criteria.RepairApplicationCriteria;
+import me.zhengjie.modules.system.service.mapper.EvaluationMapper;
 import me.zhengjie.modules.system.service.mapper.RepairAndOssMapper;
 import me.zhengjie.modules.system.service.mapper.RepairApplicationMapper;
 import me.zhengjie.modules.system.service.RepairApplicationService;
 import me.zhengjie.modules.system.service.mapper.RepairServicemanMapper;
+import me.zhengjie.modules.system.util.status.RepairStatusFactory;
 import me.zhengjie.utils.*;
 import me.zhengjie.utils.enums.RepairAndOssEnum;
 import me.zhengjie.utils.enums.RepairApplicationStatusEnum;
@@ -37,14 +41,13 @@ import java.util.stream.Collectors;
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 public class RepairApplicationServiceImpl extends CommonServiceImpl<RepairApplicationMapper, RepairApplication> implements RepairApplicationService {
 
+    private final RepairServicemanService repairServicemanService;
+    private final FileService fileService;
+
+    private final RepairAndOssMapper repairAndOssMapper;
+    private final EvaluationMapper evaluationMapper;
     private final RepairApplicationMapper repairApplicationMapper;
     private final RepairServicemanMapper repairServicemanMapper;
-    private final LikeOrNotService likeOrNotService;
-    private final RedisUtils redisUtils;
-    private final RepairServicemanService repairServicemanService;
-    private final FileProperties properties;
-    private final FileService fileService;
-    private final RepairAndOssMapper repairAndOssMapper;
 
     @Override
     public PageInfo<RepairApplicationDetailsDto> queryAll(RepairApplicationCriteria criteria, Pageable pageable) {
@@ -60,8 +63,7 @@ public class RepairApplicationServiceImpl extends CommonServiceImpl<RepairApplic
 
     @Override
     public PageInfo<RepairApplicationVo> getProvideByMe(Long currentUserId, Pageable pageable) {
-        PageInfo<RepairApplicationVo> repairApplicationVoPageInfo = ConvertUtil.convertPage(repairApplicationMapper.getProvideByMe(currentUserId, PageUtil.toMybatisPage(pageable)));
-        return repairApplicationVoPageInfo;
+        return ConvertUtil.convertPage(repairApplicationMapper.getProvideByMe(currentUserId, PageUtil.toMybatisPage(pageable)));
     }
 
     @Override
@@ -70,43 +72,36 @@ public class RepairApplicationServiceImpl extends CommonServiceImpl<RepairApplic
     }
 
     @Override
-    public List<RepairApplicationDetailsDto> queryProvideByUserId(Long id) {
-        final List<RepairApplicationDetailsDto> list = repairApplicationMapper.queryProvideByUserId(id);
-        list.forEach(r -> {
-            if (r.getAcceptStatus() == null) {
-                r.setAcceptStatus("-1");
-            }
-        });
-        return list;
+    public List<FileInfo> getResultPhotos(Long repairId) {
+        return repairApplicationMapper.getSitePhotosByRepairId(repairId, RepairAndOssEnum.RECEIPT.code);
     }
 
     @Override
-    public void like(String repairId, String type) {
-        final Long userId = SecurityUtils.getCurrentUserId();
-
-        final LikeOrNot like = likeOrNotService.getOne(new QueryWrapper<LikeOrNot>()
-                .eq("repair_id", repairId)
-                .eq("user_id", userId));
-
-        if (like != null){
-            if (!like.getType().equals(type)){
-                like.setType(type);
-                likeOrNotService.updateById(like);
-            }else {
-                likeOrNotService.removeById(like);
-            }
-
-        }else {
-            likeOrNotService.save(createLike(userId, repairId, type));
-        }
+    public PageInfo<RepairApplicationVo> pendingList(Long currentUserId, Pageable pageable) {
+        IPage<RepairApplicationVo> page = repairApplicationMapper.getPendingList(currentUserId, PageUtil.toMybatisPage(pageable));
+        return PageInfo.of(page);
     }
 
-    private LikeOrNot createLike(Long userId, String repairId, String type){
-        final LikeOrNot likeOrNot = new LikeOrNot();
-        likeOrNot.setUserId(userId);
-        likeOrNot.setRepairId(repairId);
-        likeOrNot.setType(type);
-        return likeOrNot;
+    @Override
+    public boolean rollback(RepairApplication application) {
+        return RepairStatusFactory.create(application).rollback().save(repairApplicationMapper);
+    }
+
+    @Override
+    public boolean publish(RepairApplication application) {
+        return RepairStatusFactory.create(application).publish().save(repairApplicationMapper);
+    }
+
+    @Override
+    public PageInfo<RepairSolvedVo> getResolveByMe(Long currentUserId, Pageable pageable) {
+        return PageInfo.of(
+                repairApplicationMapper.getResolveByMe(currentUserId, PageUtil.toMybatisPage(pageable))
+        );
+    }
+
+    @Override
+    public void setComment(Evaluation evaluation) {
+        evaluationMapper.insert(evaluation);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -147,14 +142,39 @@ public class RepairApplicationServiceImpl extends CommonServiceImpl<RepairApplic
         return remove(new QueryWrapper<RepairApplication>().eq("status", RepairApplicationStatusEnum.PENDING.getCode()).eq("repair_id", repairId));
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean assign(RepairServiceman resource) {
+    public boolean assign(RepairAssignBo bo) {
         final RepairApplication application = new RepairApplication();
-        application.setId(resource.getRepairId());
-        updateById(application);
-        resource.setAppointerId(SecurityUtils.getCurrentUserId());
-        return repairServicemanService.save(resource);
+        application.setId(bo.getRepairId());
+        application.setStatus(RepairApplicationStatusEnum.PENDING.getCode());
+        application.setExpectedProcessingDateFrom(bo.getExpectedProcessingDateFrom());
+        application.setExpectedProcessingDateTo(bo.getExpectedProcessingDateTo());
+
+        RepairStatusFactory.create(application).pass().save(repairApplicationMapper);
+
+        RepairServiceman serviceman = new RepairServiceman();
+        serviceman.setAppointerId(SecurityUtils.getCurrentUserId());
+        serviceman.setRepairId(bo.getRepairId());
+        serviceman.setServicemanId(getOptimalMatchingServicemanId(bo.getServicemanId()));
+
+        return repairServicemanService.save(serviceman);
+    }
+
+    /**
+     * 获取最佳匹配的维修人员id
+     */
+    private Long getOptimalMatchingServicemanId(Long repairId) {
+        if (repairId != null)
+            return repairId;
+
+        Long id =  repairServicemanMapper.getOptimalMatchingServicemanId(SecurityUtils.getCurrentUserId());
+
+        if (id == null) {
+            throw new RuntimeException("无维修人员可以指派，请先添加维修人员");
+        }
+
+        return id;
     }
 
     @Override
@@ -171,8 +191,8 @@ public class RepairApplicationServiceImpl extends CommonServiceImpl<RepairApplic
     }
 
     @Override
-    public List<RepairApplicationAssignToMeDto> findAssignByMe() {
-        return repairApplicationMapper.findAsassignByMe(SecurityUtils.getCurrentUserId());
+    public List<RepairApplicationVo> findAssignByMe() {
+        return repairApplicationMapper.findAssignByMe(SecurityUtils.getCurrentUserId());
     }
 
     @Override

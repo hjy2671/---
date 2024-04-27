@@ -1,30 +1,34 @@
 package me.zhengjie.modules.system.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import me.zhengjie.base.FileInfo;
 import me.zhengjie.base.PageInfo;
 import me.zhengjie.base.QueryHelpMybatisPlus;
 import me.zhengjie.base.impl.CommonServiceImpl;
 import me.zhengjie.modules.system.domain.RepairApplication;
 import me.zhengjie.modules.system.domain.RepairServiceman;
+import me.zhengjie.modules.system.domain.vo.RepairApplicationVo;
+import me.zhengjie.modules.system.domain.vo.ServicemanSimple;
+import me.zhengjie.modules.system.service.FileService;
 import me.zhengjie.modules.system.service.RepairApplicationService;
 import me.zhengjie.modules.system.service.RepairServicemanService;
-import me.zhengjie.modules.system.service.UserService;
-import me.zhengjie.modules.system.service.dto.RepairApplicationAssignToMeDto;
 import me.zhengjie.modules.system.service.dto.ServiceManTaskStatistics;
 import me.zhengjie.modules.system.service.dto.SimpleUserDto;
 import me.zhengjie.modules.system.service.dto.criteria.RepairServicemanCriteria;
+import me.zhengjie.modules.system.service.mapper.RepairApplicationMapper;
 import me.zhengjie.modules.system.service.mapper.RepairServicemanMapper;
+import me.zhengjie.modules.system.util.status.RepairStatusFactory;
 import me.zhengjie.utils.ConvertUtil;
 import me.zhengjie.utils.PageUtil;
 import me.zhengjie.utils.SecurityUtils;
 import me.zhengjie.utils.enums.RepairApplicationStatusEnum;
 import me.zhengjie.utils.enums.RepairServicemanStatusEnum;
-import me.zhengjie.utils.enums.UserStatusEnum;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
@@ -35,13 +39,18 @@ public class RepairServicemanServiceImpl extends CommonServiceImpl<RepairService
 
     private final RepairServicemanMapper repairServicemanMapper;
     private final RepairApplicationService repairApplicationService;
-    private final UserService userService;
+    private final RepairApplicationMapper applicationMapper;
+    private final FileService fileService;
+    private final RepairAndOssService repairAndOssService;
 
-    public RepairServicemanServiceImpl(RepairServicemanMapper repairServicemanMapper, @Lazy RepairApplicationService repairApplicationService, UserService userService) {
+    public RepairServicemanServiceImpl(RepairServicemanMapper repairServicemanMapper, @Lazy RepairApplicationService repairApplicationService, RepairApplicationMapper applicationMapper, FileService fileService, RepairAndOssService repairAndOssService) {
         this.repairServicemanMapper = repairServicemanMapper;
         this.repairApplicationService = repairApplicationService;
-        this.userService = userService;
+        this.applicationMapper = applicationMapper;
+        this.fileService = fileService;
+        this.repairAndOssService = repairAndOssService;
     }
+
 
     @Override
     public PageInfo<RepairServiceman> queryAll(RepairServicemanCriteria criteria, Pageable pageable) {
@@ -54,22 +63,14 @@ public class RepairServicemanServiceImpl extends CommonServiceImpl<RepairService
         return repairServicemanMapper.statisticsTask(userId);
     }
 
-    @Transactional
     @Override
-    public boolean accept(RepairServiceman resource) {
+    public boolean accept(Long repairId) {
 
-        try {
-            // 设置状态为已接受
-            updateById(new RepairServiceman(){{setId(resource.getId());setStatus(RepairServicemanStatusEnum.val2.getCode());}});
-
-            // 设置状态为处理中
-            repairApplicationService.updateById(new RepairApplication(){{setStartTime(new Date());setId(resource.getRepairId());setStatus(RepairApplicationStatusEnum.PROCESSING.getCode());}});
-
-            // 设置用户状态
-            userService.updateStatus(SecurityUtils.getCurrentUsername(), UserStatusEnum.val2.getCode());
-        }catch (Exception e){
-            throw new RuntimeException("接受任务失败，请刷新页面");
-        }
+        RepairApplication application = new RepairApplication();
+        application.setId(repairId);
+        application.setStatus(RepairApplicationStatusEnum.ASSIGNED.code);
+        application.setStartTime(new Date());
+        RepairStatusFactory.create(application).pass().save(applicationMapper);
 
         return true;
     }
@@ -90,20 +91,26 @@ public class RepairServicemanServiceImpl extends CommonServiceImpl<RepairService
         return true;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean finish(RepairServiceman resource) {
-        try {
-            // 设置状态为待处理
-            repairApplicationService.updateById(new RepairApplication(){{setFinishTime(new Date());setId(resource.getRepairId());setStatus(RepairApplicationStatusEnum.PENDING.getCode());}});
-        }catch (Exception e){
-            throw new RuntimeException("完成任务失败，请刷新页面");
-        }
+    public Boolean finish(Long repairId, MultipartFile[] files) {
+        RepairApplication application = new RepairApplication();
+        application.setId(repairId);
+        application.setStatus(RepairApplicationStatusEnum.PROCESSING.code);
+        RepairStatusFactory.create(application).pass().save(applicationMapper);
 
-        return true;
+        List<FileInfo> fileInfos = fileService.upload(files, "repair");
+
+        if (repairAndOssService.save(fileInfos, repairId))
+            return true;
+        else
+            log.error("文件保存失败");
+
+        throw new RuntimeException("操作失败");
     }
 
     @Override
-    public List<RepairApplicationAssignToMeDto> findAssignToMe(Long userId) {
+    public List<RepairApplicationVo> findAssignToMe(Long userId) {
         return repairServicemanMapper.findAssignToMe(userId);
     }
 
@@ -112,5 +119,8 @@ public class RepairServicemanServiceImpl extends CommonServiceImpl<RepairService
         return repairServicemanMapper.findUserByRole(role);
     }
 
-
+    @Override
+    public List<ServicemanSimple> simpleList() {
+        return repairServicemanMapper.getSimpleServiceman(SecurityUtils.getCurrentUserId());
+    }
 }

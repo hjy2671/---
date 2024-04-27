@@ -1,12 +1,16 @@
 package me.zhengjie.modules.system.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import me.zhengjie.base.CommonService;
 import me.zhengjie.base.FileInfo;
 import me.zhengjie.base.PageInfo;
+import me.zhengjie.modules.system.domain.Evaluation;
 import me.zhengjie.modules.system.domain.RepairApplication;
 import me.zhengjie.modules.system.domain.RepairServiceman;
 import me.zhengjie.modules.system.domain.User;
+import me.zhengjie.modules.system.domain.bo.RepairAssignBo;
 import me.zhengjie.modules.system.domain.vo.RepairApplicationVo;
+import me.zhengjie.modules.system.domain.vo.RepairSolvedVo;
 import me.zhengjie.modules.system.service.dto.*;
 import me.zhengjie.modules.system.service.dto.criteria.RepairApplicationCriteria;
 import org.springframework.data.domain.Pageable;
@@ -27,10 +31,6 @@ public interface RepairApplicationService extends CommonService<RepairApplicatio
      */
     PageInfo<RepairApplicationDetailsDto> queryAll(RepairApplicationCriteria criteria, Pageable pageable);
 
-    List<RepairApplicationDetailsDto> queryProvideByUserId(Long id);
-
-    void like(String repairId, String type);
-
     /**
      * 在提交报修故障前进行重复性判断，达到一定阈值则返回对应重复的列表，前端确认无误后，再次提交
      * @param resource RepairApplication
@@ -40,7 +40,7 @@ public interface RepairApplicationService extends CommonService<RepairApplicatio
 
     boolean revoke(String repairId);
 
-    boolean assign(RepairServiceman resource);
+    boolean assign(RepairAssignBo bo);
 
     RepairStatistics getRepairStatistics();
 
@@ -54,7 +54,7 @@ public interface RepairApplicationService extends CommonService<RepairApplicatio
      * 查询由我指派的
      * @return List<RepairApplicationAssignToMeDto>
      */
-    List<RepairApplicationAssignToMeDto> findAssignByMe();
+    List<RepairApplicationVo> findAssignByMe();
 
     boolean deleteAll(Set<Long> ids);
 
@@ -63,4 +63,17 @@ public interface RepairApplicationService extends CommonService<RepairApplicatio
     PageInfo<RepairApplicationVo> getProvideByMe(Long currentUserId, Pageable pageable);
 
     List<FileInfo> getSitePhotos(Long repairId);
+
+    List<FileInfo> getResultPhotos(Long repairId);
+
+
+    PageInfo<RepairApplicationVo> pendingList(Long currentUserId, Pageable pageable);
+
+    boolean rollback(RepairApplication application);
+
+    boolean publish(RepairApplication application);
+
+    PageInfo<RepairSolvedVo> getResolveByMe(Long currentUserId, Pageable pageable);
+
+    void setComment(Evaluation evaluation);
 }

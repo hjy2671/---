@@ -63,4 +63,14 @@ public interface CommonMapper<M,E> extends BaseMapper<E> {
     default boolean insertBatch(Collection<E> entityList) {
         return this.insertBatch(entityList, DEFAULT_BATCH_SIZE);
     }
+
+    default boolean updateBatch(Collection<E> entityList, int batchSize) {
+        String sqlStatement = SqlHelper.getSqlStatement(this.currentMapperClass(), SqlMethod.UPDATE_BY_ID);
+        return SqlHelper.executeBatch(this.currentModelClass(), log, entityList, batchSize,
+                (sqlSession, entity) -> sqlSession.insert(sqlStatement, entity));
+    }
+
+    default boolean updateBatch(Collection<E> entityList) {
+        return this.insertBatch(entityList, DEFAULT_BATCH_SIZE);
+    }
 }

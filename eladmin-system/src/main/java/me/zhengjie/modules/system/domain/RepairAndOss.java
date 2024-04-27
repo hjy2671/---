@@ -11,7 +11,7 @@ public class RepairAndOss {
 
     @TableId(type= IdType.ASSIGN_ID)
     private Long id;
-    private String ossId;
+    private Long ossId;
     private Long repairApplicationId;
     private String type;
 
