@@ -54,4 +54,6 @@ public interface RepairApplicationMapper extends CommonMapper<RepairApplicationM
             IPage<RepairApplicationVo> mybatisPage);
 
     IPage<RepairSolvedVo> getResolveByMe(@Param("userId") Long currentUserId, IPage<RepairApplicationVo> mybatisPage);
+
+    IPage<RepairApplicationVo> getPublishList(IPage<RepairApplicationVo> mybatisPage);
 }

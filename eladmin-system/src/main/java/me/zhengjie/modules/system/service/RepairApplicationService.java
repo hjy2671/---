@@ -69,6 +69,8 @@ public interface RepairApplicationService extends CommonService<RepairApplicatio
 
     PageInfo<RepairApplicationVo> pendingList(Long currentUserId, Pageable pageable);
 
+    PageInfo<RepairApplicationVo> getPublish(Pageable page);
+
     boolean rollback(RepairApplication application);
 
     boolean publish(RepairApplication application);
@@ -76,4 +78,5 @@ public interface RepairApplicationService extends CommonService<RepairApplicatio
     PageInfo<RepairSolvedVo> getResolveByMe(Long currentUserId, Pageable pageable);
 
     void setComment(Evaluation evaluation);
+
 }

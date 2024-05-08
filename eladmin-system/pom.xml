@@ -19,11 +19,7 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-websocket</artifactId>
-            <version>5.3.9</version>
-        </dependency>
+
 
         <!-- 代码生成模块 -->
         <dependency>

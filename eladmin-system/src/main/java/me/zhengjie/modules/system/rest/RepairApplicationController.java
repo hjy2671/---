@@ -51,6 +51,13 @@ public class RepairApplicationController {
         return new ResponseEntity<>(repairApplicationService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
+    @Log("查询已发布的报修信息列表")
+    @ApiOperation(value = "查询已发布的报修信息列表")
+    @GetMapping("/published")
+    public ResponseEntity<PageInfo<RepairApplicationVo>> getPublish(Pageable page){
+        return new ResponseEntity<>(repairApplicationService.getPublish(page), HttpStatus.OK);
+    }
+
     @Log("查询由我的报修")
     @ApiOperation(value = "查询由我的报修")
     @GetMapping("/provideByMe")

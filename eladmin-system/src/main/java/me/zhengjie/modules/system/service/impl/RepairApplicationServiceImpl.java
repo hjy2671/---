@@ -83,6 +83,12 @@ public class RepairApplicationServiceImpl extends CommonServiceImpl<RepairApplic
     }
 
     @Override
+    public PageInfo<RepairApplicationVo> getPublish(Pageable page) {
+        IPage<RepairApplicationVo> r = repairApplicationMapper.getPublishList(PageUtil.toMybatisPage(page));
+        return PageInfo.of(r);
+    }
+
+    @Override
     public boolean rollback(RepairApplication application) {
         return RepairStatusFactory.create(application).rollback().save(repairApplicationMapper);
     }

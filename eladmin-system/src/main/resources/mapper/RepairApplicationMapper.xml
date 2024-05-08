@@ -235,4 +235,28 @@
             ra.`status` = '5'
           and s.serviceman_id = #{userId}
     </select>
+    <select id="getPublishList" resultType="me.zhengjie.modules.system.domain.vo.RepairApplicationVo">
+        SELECT
+            ra.id,
+            ra.lng,
+            ra.lat,
+            ra.fault_details,
+            ra.fault_location,
+            ra.`status`,
+            ra.start_time,
+            ra.finish_time,
+            ra.expected_processing_date_to,
+            ra.expected_processing_date_from,
+            us.nick_name AS 'servicemanNick',
+            e.evaluation,
+            e.effect_grade,
+            e.quality_grade
+        FROM
+            sys_repair_application ra
+                LEFT JOIN sys_repair_serviceman rs ON ra.id = rs.repair_id
+                LEFT JOIN sys_user us ON rs.serviceman_id = us.user_id
+                LEFT JOIN evaluation e on ra.id = e.application_id
+        where
+            ra.`status` = '2'
+    </select>
 </mapper>
