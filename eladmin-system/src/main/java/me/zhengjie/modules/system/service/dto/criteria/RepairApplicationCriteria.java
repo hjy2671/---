@@ -22,18 +22,6 @@ public class RepairApplicationCriteria {
     @Query(type = Query.Type.LESS_THAN, propName = "finishTime")
     private String to;
 
-    @ApiParam(value = "提供者id")
-    @Query
-    private Long providerId;
-
-    @ApiParam(value = "维修者id")
-    @Query
-    private Long servicemanId;
-
-    @ApiParam(value = "提供者id")
-    @Query
-    private Long appointerId;
-
     @ApiParam(value = "状态")
     @Query(propName = "ra.status")
     private String status;

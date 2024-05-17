@@ -17,7 +17,6 @@ import java.util.Date;
 @Data
 public class RepairApplicationDetailsDto {
 
-    @TableId(type= IdType.AUTO)
     @ApiModelProperty(value = "ID", hidden = true)
     private Long id;
 
@@ -30,14 +29,8 @@ public class RepairApplicationDetailsDto {
     @ApiModelProperty(value = "图片")
     private String picture;
 
-    @ApiModelProperty(value = "紧急程度码")
-    private String emergencyDegree;
-
     @ApiModelProperty(value = "状态码")
     private String status;
-
-    @ApiModelProperty(value = "紧急程度名称")
-    private String emergencyDegreeName;
 
     @ApiModelProperty(value = "状态名称")
     private String statusName;
@@ -83,11 +76,6 @@ public class RepairApplicationDetailsDto {
 
     @ApiModelProperty(value = "评价")
     private String evaluation = "";
-
-    public void setEmergencyDegree(String emergencyDegree) {
-        this.emergencyDegree = emergencyDegree;
-        this.emergencyDegreeName = RepairApplicationEmergencyDegreeEnum.find(emergencyDegree).getDesc();
-    }
 
     public void setStatus(String status) {
         this.status = status;

@@ -11,6 +11,7 @@ import me.zhengjie.modules.system.domain.User;
 import me.zhengjie.modules.system.domain.bo.RepairAssignBo;
 import me.zhengjie.modules.system.domain.vo.RepairApplicationVo;
 import me.zhengjie.modules.system.domain.vo.RepairSolvedVo;
+import me.zhengjie.modules.system.domain.vo.RepairStatisticVo;
 import me.zhengjie.modules.system.service.dto.*;
 import me.zhengjie.modules.system.service.dto.criteria.RepairApplicationCriteria;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +30,7 @@ public interface RepairApplicationService extends CommonService<RepairApplicatio
      * @param pageable 分页插件
      * @return PageInfo<RepairApplicationDetailsDto>
      */
-    PageInfo<RepairApplicationDetailsDto> queryAll(RepairApplicationCriteria criteria, Pageable pageable);
+    PageInfo<RepairApplicationVo> queryAll(RepairApplicationCriteria criteria, Pageable pageable);
 
     /**
      * 在提交报修故障前进行重复性判断，达到一定阈值则返回对应重复的列表，前端确认无误后，再次提交
@@ -79,4 +80,5 @@ public interface RepairApplicationService extends CommonService<RepairApplicatio
 
     void setComment(Evaluation evaluation);
 
+    RepairStatisticVo statistic();
 }

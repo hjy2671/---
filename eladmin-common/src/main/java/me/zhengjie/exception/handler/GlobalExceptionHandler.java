@@ -26,11 +26,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.validation.BindException;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
+import javax.validation.ValidationException;
 import java.util.Objects;
 import static org.springframework.http.HttpStatus.*;
 
@@ -61,6 +64,21 @@ public class GlobalExceptionHandler {
         String message = "坏的凭证".equals(e.getMessage()) ? "用户名或密码不正确" : e.getMessage();
         log.error(message);
         return buildResponseEntity(ApiError.error(message));
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ApiError> badCredentialsException(ValidationException e){
+        log.error(e.getMessage());
+        return buildResponseEntity(ApiError.error(e.getMessage()));
+    }
+
+    @ExceptionHandler(BindException.class)
+    public ResponseEntity<ApiError> handleValidation(BindException e) {
+        for (ObjectError error : e.getBindingResult().getAllErrors()) {
+            return buildResponseEntity(ApiError.error(error.getDefaultMessage()));
+        }
+        return buildResponseEntity(ApiError.error("请求参数错误"));
+
     }
 
     /**

@@ -1,38 +1,49 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="me.zhengjie.modules.system.service.mapper.RepairApplicationMapper">
-    <select id="queryAll" resultType="me.zhengjie.modules.system.service.dto.RepairApplicationDetailsDto">
+    <resultMap id="repair" type="me.zhengjie.modules.system.domain.vo.RepairApplicationVo">
+        <id column="id" property="id"/>
+        <result column="fault_details" property="faultDetails"/>
+        <result column="fault_location" property="faultLocation"/>
+        <result column="start_time" property="startTime" />
+        <result column="finish_time" property="finishTime" />
+        <result column="evaluation" property="evaluation" />
+        <result column="effect_grade" property="effectGrade" />
+        <result column="quality_grade" property="qualityGrade" />
+        <result column="status" property="status" />
+        <result column="serviceName" property="servicemanNick" />
+
+        <collection property="before"
+                    select="getSitePhotosByRepairId"
+                    column="id=id,type=t1"
+                    ofType="me.zhengjie.base.FileInfo">
+        </collection>
+
+        <collection property="after"
+                    select="getSitePhotosByRepairId"
+                    column="id=id,type=t2"
+                    ofType="me.zhengjie.base.FileInfo">
+        </collection>
+    </resultMap>
+    <select id="queryAll" resultMap="repair">
         SELECT
             ra.id,
             ra.fault_details,
             ra.fault_location,
-            ra.picture,
-            ra.emergency_degree,
-            ra.`status`,
-            ra.found_time,
             ra.start_time,
             ra.finish_time,
-            ra.provider_id,
-            rs.serviceman_id,
-            up.nick_name AS 'providerNick',
-            us.nick_name AS 'repairNick',
-            ra.grade,
-            ra.evaluation,
-            count( type = '1' OR NULL ) AS 'likes',
-            count( type = '0' OR NULL ) AS 'notLikes'
+            ra.STATUS,
+            e.evaluation,
+            e.effect_grade,
+            e.quality_grade,
+            u.nick_name as serviceName,
+            '0' AS t1,
+            '1' AS t2
         FROM
             sys_repair_application ra
-                LEFT JOIN sys_repair_serviceman rs ON ra.id = rs.repair_id
-                LEFT JOIN sys_user us ON rs.serviceman_id = us.user_id
-                LEFT JOIN sys_user up ON ra.provider_id = up.user_id
-                LEFT JOIN sys_like_or_not l ON l.repair_id = ra.id
-        ${ew.customSqlSegment}
-        GROUP BY
-            ra.id,
-            rs.serviceman_id,
-            up.nick_name,
-            us.nick_name
-        order by ra.found_time desc, ra.finish_time desc, likes desc
+                LEFT JOIN evaluation e ON ra.id = e.application_id
+                LEFT JOIN sys_repair_serviceman s ON ra.id = s.repair_id
+                LEFT JOIN sys_user u on s.serviceman_id = u.user_id
     </select>
     <select id="getRepairStatistics" resultType="me.zhengjie.modules.system.service.dto.RepairStatistics">
         SELECT
@@ -258,5 +269,13 @@
                 LEFT JOIN evaluation e on ra.id = e.application_id
         where
             ra.`status` = '2'
+    </select>
+    <select id="getLntLats" resultType="me.zhengjie.modules.system.domain.LngLatDto">
+        SELECT
+            lng,
+            lat,
+            `status`
+        FROM
+            sys_repair_application
     </select>
 </mapper>

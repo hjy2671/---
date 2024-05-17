@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import me.zhengjie.base.CommonMapper;
 import me.zhengjie.base.FileInfo;
 import me.zhengjie.base.PageInfo;
+import me.zhengjie.modules.system.domain.LngLatDto;
 import me.zhengjie.modules.system.domain.RepairApplication;
 import me.zhengjie.modules.system.domain.vo.RepairApplicationVo;
 import me.zhengjie.modules.system.domain.vo.RepairSolvedVo;
@@ -26,7 +27,7 @@ public interface RepairApplicationMapper extends CommonMapper<RepairApplicationM
      * @param page 分页插件
      * @return IPage<RepairApplicationDetailsDto>
      */
-    IPage<RepairApplicationDetailsDto> queryAll(@Param(Constants.WRAPPER) Wrapper<Object> wrapper, IPage<RepairApplicationDetailsDto> page);
+    IPage<RepairApplicationVo> queryAll(@Param(Constants.WRAPPER) Wrapper<Object> wrapper, IPage<RepairApplicationDetailsDto> page);
 
     List<RepairApplicationDetailsDto> queryProvideByUserId(Long id);
     /**
@@ -56,4 +57,7 @@ public interface RepairApplicationMapper extends CommonMapper<RepairApplicationM
     IPage<RepairSolvedVo> getResolveByMe(@Param("userId") Long currentUserId, IPage<RepairApplicationVo> mybatisPage);
 
     IPage<RepairApplicationVo> getPublishList(IPage<RepairApplicationVo> mybatisPage);
+
+    List<LngLatDto> getLntLats();
+
 }

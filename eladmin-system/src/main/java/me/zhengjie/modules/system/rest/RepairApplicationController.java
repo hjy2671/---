@@ -1,6 +1,5 @@
 package me.zhengjie.modules.system.rest;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -10,28 +9,24 @@ import me.zhengjie.base.FileInfo;
 import me.zhengjie.base.PageInfo;
 import me.zhengjie.modules.system.domain.Evaluation;
 import me.zhengjie.modules.system.domain.RepairApplication;
-import me.zhengjie.modules.system.domain.RepairServiceman;
+import me.zhengjie.modules.system.domain.bo.AddGroup;
 import me.zhengjie.modules.system.domain.bo.RepairAssignBo;
 import me.zhengjie.modules.system.domain.vo.RepairApplicationVo;
 import me.zhengjie.modules.system.domain.vo.RepairSolvedVo;
-import me.zhengjie.modules.system.service.FileService;
+import me.zhengjie.modules.system.domain.vo.RepairStatisticVo;
 import me.zhengjie.modules.system.service.RepairApplicationService;
-import me.zhengjie.modules.system.service.dto.RepairApplicationDetailsDto;
 import me.zhengjie.modules.system.service.dto.criteria.RepairApplicationCriteria;
 import me.zhengjie.utils.SecurityUtils;
 import me.zhengjie.utils.enums.RepairApplicationStatusEnum;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -44,10 +39,18 @@ public class RepairApplicationController {
 
     private final RepairApplicationService repairApplicationService;
 
+    @Log("统计")
+    @ApiOperation(value = "统计")
+    @GetMapping("/statistic")
+    @AnonymousAccess
+    public ResponseEntity<RepairStatisticVo> statistic(){
+        return new ResponseEntity<>(repairApplicationService.statistic(), HttpStatus.OK);
+    }
+
     @Log("查询故障报修信息列表")
     @ApiOperation(value = "查询故障报修信息列表")
     @GetMapping
-    public ResponseEntity<PageInfo<RepairApplicationDetailsDto>> queryAll(RepairApplicationCriteria criteria, Pageable pageable){
+    public ResponseEntity<PageInfo<RepairApplicationVo>> queryAll(RepairApplicationCriteria criteria, Pageable pageable){
         return new ResponseEntity<>(repairApplicationService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
@@ -193,7 +196,7 @@ public class RepairApplicationController {
     @Log("提交故障报修信")
     @ApiOperation(value = "提交故障报修信")
     @PostMapping("/commit")
-    public ResponseEntity<Object> commit(@RequestParam("files") MultipartFile[] files, RepairApplication info){
+    public ResponseEntity<Object> commit(@RequestParam("files") MultipartFile[] files, @Validated(AddGroup.class) RepairApplication info){
         return new ResponseEntity<>(repairApplicationService.commit(files, info), HttpStatus.OK);
     }
 }
